@@ -72,22 +72,22 @@ module ShopifyAPI
     class << self
       sig do
         params(
+          session: Auth::Session,
           since_id: T.untyped,
           last_id: T.untyped,
           test: T.untyped,
           payout_id: T.untyped,
           payout_status: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def transactions(
+        session: ShopifyAPI::Context.active_session,
         since_id: nil,
         last_id: nil,
         test: nil,
         payout_id: nil,
         payout_status: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         request(

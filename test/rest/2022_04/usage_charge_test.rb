@@ -19,14 +19,16 @@ class UsageCharge202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,7 @@ class UsageCharge202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"usage_charge" => {"id" => 1034618212, "description" => "Super Mega Plan 1000 emails", "price" => "1.00", "created_at" => "2023-06-14T14:23:37-04:00", "currency" => "USD", "billing_on" => nil, "balance_used" => 11.0, "balance_remaining" => 89.0, "risk_level" => 0}}), headers: {})
 
-    response = usage_charge = ShopifyAPI::UsageCharge.new
+    response = usage_charge = ShopifyAPI::UsageCharge.new(session: @shopify_api_config.active_session)
     usage_charge.recurring_application_charge_id = 455696195
     usage_charge.description = "Super Mega Plan 1000 emails"
     usage_charge.price = "1.00"
@@ -75,6 +77,7 @@ class UsageCharge202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"usage_charges" => [{"id" => 1034618213, "description" => "Super Mega Plan Add-ons", "price" => "10.00", "created_at" => "2023-06-14T14:23:37-04:00", "currency" => "USD", "billing_on" => nil, "balance_used" => 10.0, "balance_remaining" => 90.0, "risk_level" => 0}]}), headers: {})
 
     response = ShopifyAPI::UsageCharge.all(
+      session: @shopify_api_config.active_session,
       recurring_application_charge_id: 455696195,
     )
 
@@ -107,6 +110,7 @@ class UsageCharge202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"usage_charge" => {"id" => 1034618210, "description" => "Super Mega Plan Add-ons", "price" => "10.00", "created_at" => "2023-06-14T14:23:34-04:00", "currency" => "USD", "billing_on" => nil, "balance_used" => 10.0, "balance_remaining" => 90.0, "risk_level" => 0}}), headers: {})
 
     response = ShopifyAPI::UsageCharge.find(
+      session: @shopify_api_config.active_session,
       recurring_application_charge_id: 455696195,
       id: 1034618210,
     )

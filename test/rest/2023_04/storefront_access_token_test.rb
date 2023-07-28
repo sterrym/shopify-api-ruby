@@ -19,14 +19,16 @@ class StorefrontAccessToken202304Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2023-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2023-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -38,9 +40,9 @@ class StorefrontAccessToken202304Test < Test::Unit::TestCase
         headers: {"X-Shopify-Access-Token"=>"this_is_a_test_token", "Accept"=>"application/json", "Content-Type"=>"application/json"},
         body: { "storefront_access_token" => hash_including({"title" => "Test"}) }
       )
-      .to_return(status: 200, body: JSON.generate({"storefront_access_token" => {"access_token" => "169a201d2d13a3f3453cd557dace56e1", "access_scope" => "unauthenticated_read_product_listings", "created_at" => "2023-07-05T18:50:29-04:00", "id" => 1003303990, "admin_graphql_api_id" => "gid://shopify/StorefrontAccessToken/1003303990", "title" => "Test"}}), headers: {})
+      .to_return(status: 200, body: JSON.generate({"storefront_access_token" => {"access_token" => "f1dcc9381f3de9b774b2229b1f3118a2", "access_scope" => "unauthenticated_read_product_listings", "created_at" => "2023-07-11T18:14:23-04:00", "id" => 1003304090, "admin_graphql_api_id" => "gid://shopify/StorefrontAccessToken/1003304090", "title" => "Test"}}), headers: {})
 
-    response = storefront_access_token = ShopifyAPI::StorefrontAccessToken.new
+    response = storefront_access_token = ShopifyAPI::StorefrontAccessToken.new(session: @shopify_api_config.active_session)
     storefront_access_token.title = "Test"
     storefront_access_token.save
 
@@ -70,9 +72,11 @@ class StorefrontAccessToken202304Test < Test::Unit::TestCase
         headers: {"X-Shopify-Access-Token"=>"this_is_a_test_token", "Accept"=>"application/json"},
         body: {}
       )
-      .to_return(status: 200, body: JSON.generate({"storefront_access_tokens" => [{"access_token" => "378d95641257a4ab3feff967ee234f4d", "access_scope" => "unauthenticated_read_product_listings", "created_at" => "2023-07-05T18:38:03-04:00", "id" => 755357713, "admin_graphql_api_id" => "gid://shopify/StorefrontAccessToken/755357713", "title" => "API Client Extension"}]}), headers: {})
+      .to_return(status: 200, body: JSON.generate({"storefront_access_tokens" => [{"access_token" => "378d95641257a4ab3feff967ee234f4d", "access_scope" => "unauthenticated_read_product_listings", "created_at" => "2023-07-11T17:47:36-04:00", "id" => 755357713, "admin_graphql_api_id" => "gid://shopify/StorefrontAccessToken/755357713", "title" => "API Client Extension"}]}), headers: {})
 
-    response = ShopifyAPI::StorefrontAccessToken.all
+    response = ShopifyAPI::StorefrontAccessToken.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2023-04/storefront_access_tokens.json")
 
@@ -103,6 +107,7 @@ class StorefrontAccessToken202304Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::StorefrontAccessToken.delete(
+      session: @shopify_api_config.active_session,
       id: 755357713,
     )
 

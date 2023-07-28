@@ -19,14 +19,16 @@ class PriceRule202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,7 @@ class PriceRule202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"price_rule" => {"id" => 996606714, "value_type" => "percentage", "value" => "-100.0", "customer_selection" => "all", "target_type" => "line_item", "target_selection" => "entitled", "allocation_method" => "each", "allocation_limit" => 3, "once_per_customer" => false, "usage_limit" => nil, "starts_at" => "2018-03-21T20:00:00-04:00", "ends_at" => nil, "created_at" => "2023-06-14T14:57:19-04:00", "updated_at" => "2023-06-14T14:57:19-04:00", "entitled_product_ids" => [921728736], "entitled_variant_ids" => [], "entitled_collection_ids" => [], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [841564295], "customer_segment_prerequisite_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => nil, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => 2, "entitled_quantity" => 1}, "prerequisite_to_entitlement_purchase" => {"prerequisite_amount" => nil}, "title" => "Buy2iPodsGetiPodTouchForFree", "admin_graphql_api_id" => "gid://shopify/PriceRule/996606714"}}), headers: {})
 
-    response = price_rule = ShopifyAPI::PriceRule.new
+    response = price_rule = ShopifyAPI::PriceRule.new(session: @shopify_api_config.active_session)
     price_rule.title = "Buy2iPodsGetiPodTouchForFree"
     price_rule.value_type = "percentage"
     price_rule.value = "-100.0"
@@ -90,7 +92,7 @@ class PriceRule202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"price_rule" => {"id" => 996606715, "value_type" => "fixed_amount", "value" => "-10.0", "customer_selection" => "all", "target_type" => "line_item", "target_selection" => "all", "allocation_method" => "across", "allocation_limit" => nil, "once_per_customer" => false, "usage_limit" => nil, "starts_at" => "2017-01-19T12:59:10-05:00", "ends_at" => nil, "created_at" => "2023-06-14T14:57:25-04:00", "updated_at" => "2023-06-14T14:57:25-04:00", "entitled_product_ids" => [], "entitled_variant_ids" => [], "entitled_collection_ids" => [], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [], "customer_segment_prerequisite_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => nil, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => nil, "entitled_quantity" => nil}, "prerequisite_to_entitlement_purchase" => {"prerequisite_amount" => nil}, "title" => "SUMMERSALE10OFF", "admin_graphql_api_id" => "gid://shopify/PriceRule/996606715"}}), headers: {})
 
-    response = price_rule = ShopifyAPI::PriceRule.new
+    response = price_rule = ShopifyAPI::PriceRule.new(session: @shopify_api_config.active_session)
     price_rule.title = "SUMMERSALE10OFF"
     price_rule.target_type = "line_item"
     price_rule.target_selection = "all"
@@ -129,7 +131,7 @@ class PriceRule202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"price_rule" => {"id" => 996606713, "value_type" => "percentage", "value" => "-15.0", "customer_selection" => "all", "target_type" => "line_item", "target_selection" => "entitled", "allocation_method" => "across", "allocation_limit" => nil, "once_per_customer" => false, "usage_limit" => nil, "starts_at" => "2017-01-19T12:59:10-05:00", "ends_at" => nil, "created_at" => "2023-06-14T14:57:17-04:00", "updated_at" => "2023-06-14T14:57:17-04:00", "entitled_product_ids" => [], "entitled_variant_ids" => [], "entitled_collection_ids" => [841564295], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [], "customer_segment_prerequisite_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => nil, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => nil, "entitled_quantity" => nil}, "prerequisite_to_entitlement_purchase" => {"prerequisite_amount" => nil}, "title" => "15OFFCOLLECTION", "admin_graphql_api_id" => "gid://shopify/PriceRule/996606713"}}), headers: {})
 
-    response = price_rule = ShopifyAPI::PriceRule.new
+    response = price_rule = ShopifyAPI::PriceRule.new(session: @shopify_api_config.active_session)
     price_rule.title = "15OFFCOLLECTION"
     price_rule.target_type = "line_item"
     price_rule.target_selection = "entitled"
@@ -171,7 +173,7 @@ class PriceRule202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"price_rule" => {"id" => 996606716, "value_type" => "percentage", "value" => "-100.0", "customer_selection" => "all", "target_type" => "shipping_line", "target_selection" => "all", "allocation_method" => "each", "allocation_limit" => nil, "once_per_customer" => false, "usage_limit" => 20, "starts_at" => "2017-01-19T12:59:10-05:00", "ends_at" => nil, "created_at" => "2023-06-14T14:57:36-04:00", "updated_at" => "2023-06-14T14:57:36-04:00", "entitled_product_ids" => [], "entitled_variant_ids" => [], "entitled_collection_ids" => [], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [], "customer_segment_prerequisite_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => {"greater_than_or_equal_to" => "50.0"}, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => nil, "entitled_quantity" => nil}, "prerequisite_to_entitlement_purchase" => {"prerequisite_amount" => nil}, "title" => "FREESHIPPING", "admin_graphql_api_id" => "gid://shopify/PriceRule/996606716"}}), headers: {})
 
-    response = price_rule = ShopifyAPI::PriceRule.new
+    response = price_rule = ShopifyAPI::PriceRule.new(session: @shopify_api_config.active_session)
     price_rule.title = "FREESHIPPING"
     price_rule.target_type = "shipping_line"
     price_rule.target_selection = "all"
@@ -214,7 +216,9 @@ class PriceRule202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"price_rules" => [{"id" => 507328175, "value_type" => "fixed_amount", "value" => "-10.0", "customer_selection" => "all", "target_type" => "line_item", "target_selection" => "all", "allocation_method" => "across", "allocation_limit" => nil, "once_per_customer" => false, "usage_limit" => nil, "starts_at" => "2023-06-08T14:27:29-04:00", "ends_at" => "2023-06-20T14:27:29-04:00", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "entitled_product_ids" => [], "entitled_variant_ids" => [], "entitled_collection_ids" => [], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [], "prerequisite_saved_search_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => nil, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => nil, "entitled_quantity" => nil}, "title" => "SUMMERSALE10OFF", "admin_graphql_api_id" => "gid://shopify/PriceRule/507328175"}, {"id" => 106886544, "value_type" => "fixed_amount", "value" => "-10.0", "customer_selection" => "all", "target_type" => "line_item", "target_selection" => "all", "allocation_method" => "across", "allocation_limit" => nil, "once_per_customer" => false, "usage_limit" => nil, "starts_at" => "2023-06-12T14:27:29-04:00", "ends_at" => "2023-06-16T14:27:29-04:00", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "entitled_product_ids" => [], "entitled_variant_ids" => [], "entitled_collection_ids" => [], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [], "prerequisite_saved_search_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => nil, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => nil, "entitled_quantity" => nil}, "title" => "TENOFF", "admin_graphql_api_id" => "gid://shopify/PriceRule/106886544"}]}), headers: {})
 
-    response = ShopifyAPI::PriceRule.all
+    response = ShopifyAPI::PriceRule.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/price_rules.json")
 
@@ -245,6 +249,7 @@ class PriceRule202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"price_rules" => [{"id" => 507328175, "value_type" => "fixed_amount", "value" => "-10.0", "customer_selection" => "all", "target_type" => "line_item", "target_selection" => "all", "allocation_method" => "across", "allocation_limit" => nil, "once_per_customer" => false, "usage_limit" => nil, "starts_at" => "2023-06-08T14:27:29-04:00", "ends_at" => "2023-06-20T14:27:29-04:00", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "entitled_product_ids" => [], "entitled_variant_ids" => [], "entitled_collection_ids" => [], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [], "prerequisite_saved_search_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => nil, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => nil, "entitled_quantity" => nil}, "title" => "SUMMERSALE10OFF", "admin_graphql_api_id" => "gid://shopify/PriceRule/507328175"}]}), headers: {})
 
     response = ShopifyAPI::PriceRule.all(
+      session: @shopify_api_config.active_session,
       since_id: "106886545",
     )
 
@@ -276,7 +281,7 @@ class PriceRule202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"price_rule" => {"id" => 507328175, "value_type" => "fixed_amount", "value" => "-10.0", "customer_selection" => "all", "target_type" => "line_item", "target_selection" => "all", "allocation_method" => "across", "allocation_limit" => nil, "once_per_customer" => false, "usage_limit" => nil, "starts_at" => "2023-06-08T14:27:29-04:00", "ends_at" => "2023-06-20T14:27:29-04:00", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:57:28-04:00", "entitled_product_ids" => [], "entitled_variant_ids" => [], "entitled_collection_ids" => [], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [], "customer_segment_prerequisite_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => nil, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => nil, "entitled_quantity" => nil}, "prerequisite_to_entitlement_purchase" => {"prerequisite_amount" => nil}, "title" => "WINTER SALE", "admin_graphql_api_id" => "gid://shopify/PriceRule/507328175"}}), headers: {})
 
-    response = price_rule = ShopifyAPI::PriceRule.new
+    response = price_rule = ShopifyAPI::PriceRule.new(session: @shopify_api_config.active_session)
     price_rule.id = 507328175
     price_rule.title = "WINTER SALE"
     price_rule.save
@@ -310,6 +315,7 @@ class PriceRule202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"price_rule" => {"id" => 507328175, "value_type" => "fixed_amount", "value" => "-10.0", "customer_selection" => "all", "target_type" => "line_item", "target_selection" => "all", "allocation_method" => "across", "allocation_limit" => nil, "once_per_customer" => false, "usage_limit" => nil, "starts_at" => "2023-06-08T14:27:29-04:00", "ends_at" => "2023-06-20T14:27:29-04:00", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "entitled_product_ids" => [], "entitled_variant_ids" => [], "entitled_collection_ids" => [], "entitled_country_ids" => [], "prerequisite_product_ids" => [], "prerequisite_variant_ids" => [], "prerequisite_collection_ids" => [], "customer_segment_prerequisite_ids" => [], "prerequisite_customer_ids" => [], "prerequisite_subtotal_range" => nil, "prerequisite_quantity_range" => nil, "prerequisite_shipping_price_range" => nil, "prerequisite_to_entitlement_quantity_ratio" => {"prerequisite_quantity" => nil, "entitled_quantity" => nil}, "prerequisite_to_entitlement_purchase" => {"prerequisite_amount" => nil}, "title" => "SUMMERSALE10OFF", "admin_graphql_api_id" => "gid://shopify/PriceRule/507328175"}}), headers: {})
 
     response = ShopifyAPI::PriceRule.find(
+      session: @shopify_api_config.active_session,
       id: 507328175,
     )
 
@@ -342,6 +348,7 @@ class PriceRule202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::PriceRule.delete(
+      session: @shopify_api_config.active_session,
       id: 507328175,
     )
 
@@ -373,7 +380,9 @@ class PriceRule202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"count" => 2}), headers: {})
 
-    response = ShopifyAPI::PriceRule.count
+    response = ShopifyAPI::PriceRule.count(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/price_rules/count.json")
 

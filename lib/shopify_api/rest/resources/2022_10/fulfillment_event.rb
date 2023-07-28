@@ -95,16 +95,16 @@ module ShopifyAPI
           id: T.any(Integer, String),
           order_id: T.nilable(T.any(Integer, String)),
           fulfillment_id: T.nilable(T.any(Integer, String)),
-          event_id: T.untyped,
-          session: Auth::Session
+          session: Auth::Session,
+          event_id: T.untyped
         ).returns(T.nilable(FulfillmentEvent))
       end
       def find(
         id:,
         order_id: nil,
         fulfillment_id: nil,
-        event_id: nil,
-        session: ShopifyAPI::Context.active_session
+        session: ShopifyAPI::Context.active_session,
+        event_id: nil
       )
         result = base_find(
           session: session,

@@ -19,14 +19,16 @@ class Metafield202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -41,6 +43,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => []}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "382285388", "owner_resource" => "blog"},
     )
 
@@ -73,6 +76,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 519046726, "namespace" => "notes", "key" => "descriptionription", "value" => "Collection description", "description" => "Custom Collection notes", "owner_id" => 482865238, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "collection", "type" => "string", "admin_graphql_api_id" => "gid://shopify/Metafield/519046726"}, {"id" => 624849518, "namespace" => "global", "key" => "description_tag", "value" => "Some seo description value", "description" => nil, "owner_id" => 482865238, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "collection", "type" => "string", "admin_graphql_api_id" => "gid://shopify/Metafield/624849518"}, {"id" => 1010236510, "namespace" => "global", "key" => "title_tag", "value" => "Some seo title value", "description" => nil, "owner_id" => 482865238, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "collection", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1010236510"}]}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "482865238", "owner_resource" => "collection"},
     )
 
@@ -105,6 +109,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 220591908, "namespace" => "discounts", "key" => "returning_customer", "value" => "no", "description" => "Customer deserves discount", "owner_id" => 207119551, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "customer", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/220591908"}]}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "207119551", "owner_resource" => "customer"},
     )
 
@@ -137,6 +142,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 106172460, "namespace" => "notes", "key" => "note", "value" => "B flat", "description" => "This is for notes", "owner_id" => 622762746, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "draft_order", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/106172460"}]}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "622762746", "owner_resource" => "draft_order"},
     )
 
@@ -169,6 +175,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 290519330, "namespace" => "translation", "key" => "title_fr", "value" => "Le TOS", "description" => "Page French title translation", "owner_id" => 131092082, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "page", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/290519330"}]}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "131092082", "owner_resource" => "page"},
     )
 
@@ -201,6 +208,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 51714266, "namespace" => "my_namespace", "key" => "my_key", "value" => "Hello", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/51714266"}, {"id" => 116539875, "namespace" => "descriptors", "key" => "subtitle", "value" => "The best ipod", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/116539875"}, {"id" => 263497237, "namespace" => "installments", "key" => "disable", "value" => true, "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "boolean", "admin_graphql_api_id" => "gid://shopify/Metafield/263497237"}, {"id" => 273160493, "namespace" => "facts", "key" => "isbn", "value" => "978-0-14-004259-7", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/273160493"}, {"id" => 524118066, "namespace" => "facts", "key" => "ean", "value" => "0123456789012", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/524118066"}, {"id" => 543636738, "namespace" => "reviews", "key" => "rating_count", "value" => 1, "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "number_integer", "admin_graphql_api_id" => "gid://shopify/Metafield/543636738"}, {"id" => 572384404, "namespace" => "reviews", "key" => "rating", "value" => "{\"value\": \"3.5\", \"scale_min\": \"1.0\", \"scale_max\": \"5.0\"}", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "rating", "admin_graphql_api_id" => "gid://shopify/Metafield/572384404"}, {"id" => 613330208, "namespace" => "shopify_filter", "key" => "display", "value" => "retina", "description" => "This field keeps track of the type of display", "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "string", "admin_graphql_api_id" => "gid://shopify/Metafield/613330208"}, {"id" => 779326701, "namespace" => "facts", "key" => "upc", "value" => "012345678901", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/779326701"}, {"id" => 845366454, "namespace" => "translations", "key" => "title_fr", "value" => "produit", "description" => "French product title", "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "string", "admin_graphql_api_id" => "gid://shopify/Metafield/845366454"}, {"id" => 861799889, "namespace" => "my_other_fields", "key" => "organic", "value" => true, "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "boolean", "admin_graphql_api_id" => "gid://shopify/Metafield/861799889"}, {"id" => 870326793, "namespace" => "descriptors", "key" => "care_guide", "value" => "Wash in cold water", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => nil, "admin_graphql_api_id" => "gid://shopify/Metafield/870326793"}, {"id" => 908250163, "namespace" => "my_other_fields", "key" => "shipping_policy", "value" => "Ships for free in Canada", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "multi_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/908250163"}, {"id" => 925288667, "namespace" => "my_other_fields", "key" => "year_released", "value" => 2019, "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "number_integer", "admin_graphql_api_id" => "gid://shopify/Metafield/925288667"}, {"id" => 1001077698, "namespace" => "my_fields", "key" => "best_for", "value" => "travel", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1001077698"}, {"id" => 1029402048, "namespace" => "my_other_fields", "key" => "ingredients", "value" => "[\"apple\", \"music\", \"u2\"]", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "list.single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1029402048"}]}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "632910392", "owner_resource" => "product"},
     )
 
@@ -233,6 +241,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 625663657, "namespace" => "translation", "key" => "title_fr", "value" => "tbn", "description" => "French product image title", "owner_id" => 850703190, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product_image", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/625663657"}]}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "850703190", "owner_resource" => "product_image"},
     )
 
@@ -265,6 +274,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => []}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "49148385", "owner_resource" => "variants"},
     )
 
@@ -297,6 +307,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => []}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "674387490", "owner_resource" => "article"},
     )
 
@@ -329,6 +340,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 915396079, "namespace" => "notes", "key" => "buyer", "value" => "Notes about this buyer", "description" => "This field is for buyer notes", "owner_id" => 450789469, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "order", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/915396079"}]}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       metafield: {"owner_id" => "450789469", "owner_resource" => "order"},
     )
 
@@ -360,7 +372,9 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 721389482, "namespace" => "affiliates", "key" => "app_key", "value" => "app_key", "description" => nil, "owner_id" => 548380009, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "shop", "type" => "string", "admin_graphql_api_id" => "gid://shopify/Metafield/721389482"}]}), headers: {})
 
-    response = ShopifyAPI::Metafield.all
+    response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/metafields.json")
 
@@ -391,6 +405,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafields" => [{"id" => 1069228971, "namespace" => "my_fields", "key" => "my_items", "value" => "{\"items\":[\"some item\"]}", "description" => nil, "owner_id" => 548380009, "created_at" => "2023-06-14T14:32:13-04:00", "updated_at" => "2023-06-14T14:32:13-04:00", "owner_resource" => "shop", "type" => "json", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228971"}]}), headers: {})
 
     response = ShopifyAPI::Metafield.all(
+      session: @shopify_api_config.active_session,
       since_id: "721389482",
     )
 
@@ -422,7 +437,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069229007, "namespace" => "my_fields", "key" => "sponsor", "value" => "Shopify", "description" => nil, "owner_id" => 382285388, "created_at" => "2023-06-14T14:35:44-04:00", "updated_at" => "2023-06-14T14:35:44-04:00", "owner_resource" => "blog", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069229007"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.blog_id = 382285388
     metafield.namespace = "my_fields"
     metafield.key = "sponsor"
@@ -458,7 +473,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069229002, "namespace" => "my_fields", "key" => "discount", "value" => "25%", "description" => nil, "owner_id" => 482865238, "created_at" => "2023-06-14T14:35:06-04:00", "updated_at" => "2023-06-14T14:35:06-04:00", "owner_resource" => "collection", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069229002"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.collection_id = 482865238
     metafield.namespace = "my_fields"
     metafield.key = "discount"
@@ -494,7 +509,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069228976, "namespace" => "discounts", "key" => "special", "value" => "yes", "description" => nil, "owner_id" => 207119551, "created_at" => "2023-06-14T14:32:47-04:00", "updated_at" => "2023-06-14T14:32:47-04:00", "owner_resource" => "customer", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228976"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.customer_id = 207119551
     metafield.namespace = "discounts"
     metafield.key = "special"
@@ -530,7 +545,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069228996, "namespace" => "my_fields", "key" => "purchase_order", "value" => "97453", "description" => nil, "owner_id" => 622762746, "created_at" => "2023-06-14T14:34:22-04:00", "updated_at" => "2023-06-14T14:34:22-04:00", "owner_resource" => "draft_order", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228996"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.draft_order_id = 622762746
     metafield.namespace = "my_fields"
     metafield.key = "purchase_order"
@@ -566,7 +581,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069228961, "namespace" => "my_fields", "key" => "subtitle", "value" => "A subtitle for my page", "description" => nil, "owner_id" => 131092082, "created_at" => "2023-06-14T14:31:29-04:00", "updated_at" => "2023-06-14T14:31:29-04:00", "owner_resource" => "page", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228961"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.page_id = 131092082
     metafield.namespace = "my_fields"
     metafield.key = "subtitle"
@@ -602,7 +617,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069228995, "namespace" => "inventory", "key" => "warehouse", "value" => 25, "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:34:10-04:00", "updated_at" => "2023-06-14T14:34:10-04:00", "owner_resource" => "product", "type" => "number_integer", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228995"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.product_id = 632910392
     metafield.namespace = "inventory"
     metafield.key = "warehouse"
@@ -638,7 +653,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069228997, "namespace" => "translation", "key" => "title_spanish", "value" => "botas", "description" => nil, "owner_id" => 850703190, "created_at" => "2023-06-14T14:34:27-04:00", "updated_at" => "2023-06-14T14:34:27-04:00", "owner_resource" => "product_image", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228997"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.product_image_id = 850703190
     metafield.namespace = "translation"
     metafield.key = "title_spanish"
@@ -674,7 +689,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069228968, "namespace" => "my_fields", "key" => "liner_material", "value" => "synthetic leather", "description" => nil, "owner_id" => 49148385, "created_at" => "2023-06-14T14:32:06-04:00", "updated_at" => "2023-06-14T14:32:06-04:00", "owner_resource" => "variant", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228968"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.variant_id = 49148385
     metafield.namespace = "my_fields"
     metafield.key = "liner_material"
@@ -710,7 +725,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069228970, "namespace" => "my_fields", "key" => "category", "value" => "outdoors", "description" => nil, "owner_id" => 674387490, "created_at" => "2023-06-14T14:32:11-04:00", "updated_at" => "2023-06-14T14:32:11-04:00", "owner_resource" => "article", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228970"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.article_id = 674387490
     metafield.namespace = "my_fields"
     metafield.key = "category"
@@ -746,7 +761,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069228980, "namespace" => "my_fields", "key" => "purchase_order", "value" => "123", "description" => nil, "owner_id" => 450789469, "created_at" => "2023-06-14T14:33:07-04:00", "updated_at" => "2023-06-14T14:33:07-04:00", "owner_resource" => "order", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1069228980"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.order_id = 450789469
     metafield.namespace = "my_fields"
     metafield.key = "purchase_order"
@@ -782,7 +797,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1069229009, "namespace" => "my_fields", "key" => "my_items", "value" => "{\"items\":[\"some item\"]}", "description" => nil, "owner_id" => 548380009, "created_at" => "2023-06-14T14:35:48-04:00", "updated_at" => "2023-06-14T14:35:48-04:00", "owner_resource" => "shop", "type" => "json", "admin_graphql_api_id" => "gid://shopify/Metafield/1069229009"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.namespace = "my_fields"
     metafield.key = "my_items"
     metafield.value = "{\"items\":[\"some item\"]}"
@@ -818,6 +833,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 0}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       blog_id: 382285388,
     )
 
@@ -850,6 +866,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 3}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       collection_id: 482865238,
     )
 
@@ -882,6 +899,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 1}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       customer_id: 207119551,
     )
 
@@ -914,6 +932,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 1}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       draft_order_id: 622762746,
     )
 
@@ -946,6 +965,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 1}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       page_id: 131092082,
     )
 
@@ -978,6 +998,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 16}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       product_id: 632910392,
     )
 
@@ -1010,6 +1031,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 1}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       product_image_id: 850703190,
     )
 
@@ -1042,6 +1064,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 0}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       variant_id: 49148385,
     )
 
@@ -1074,6 +1097,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 0}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       article_id: 674387490,
     )
 
@@ -1106,6 +1130,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 1}), headers: {})
 
     response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
       order_id: 450789469,
     )
 
@@ -1137,7 +1162,9 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"count" => 1}), headers: {})
 
-    response = ShopifyAPI::Metafield.count
+    response = ShopifyAPI::Metafield.count(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/metafields/count.json")
 
@@ -1168,6 +1195,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 534526895, "namespace" => "translation", "key" => "title_fr", "value" => "Le iPod", "description" => "Blog French title translation", "owner_id" => 241253187, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "blog", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/534526895"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       blog_id: 382285388,
       id: 534526895,
     )
@@ -1201,6 +1229,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1010236510, "namespace" => "global", "key" => "title_tag", "value" => "Some seo title value", "description" => nil, "owner_id" => 482865238, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "collection", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1010236510"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       collection_id: 482865238,
       id: 1010236510,
     )
@@ -1234,6 +1263,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 220591908, "namespace" => "discounts", "key" => "returning_customer", "value" => "no", "description" => "Customer deserves discount", "owner_id" => 207119551, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "customer", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/220591908"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       customer_id: 207119551,
       id: 220591908,
     )
@@ -1267,6 +1297,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 106172460, "namespace" => "notes", "key" => "note", "value" => "B flat", "description" => "This is for notes", "owner_id" => 622762746, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "draft_order", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/106172460"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       draft_order_id: 622762746,
       id: 106172460,
     )
@@ -1300,6 +1331,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 290519330, "namespace" => "translation", "key" => "title_fr", "value" => "Le TOS", "description" => "Page French title translation", "owner_id" => 131092082, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "page", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/290519330"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       page_id: 131092082,
       id: 290519330,
     )
@@ -1333,6 +1365,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 1001077698, "namespace" => "my_fields", "key" => "best_for", "value" => "travel", "description" => nil, "owner_id" => 632910392, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1001077698"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       product_id: 632910392,
       id: 1001077698,
     )
@@ -1366,6 +1399,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 625663657, "namespace" => "translation", "key" => "title_fr", "value" => "tbn", "description" => "French product image title", "owner_id" => 850703190, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "product_image", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/625663657"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       product_image_id: 850703190,
       id: 625663657,
     )
@@ -1399,6 +1433,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 323119633, "namespace" => "my_fields", "key" => "color", "value" => "Pink", "description" => nil, "owner_id" => 808950810, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "variant", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/323119633"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       variant_id: 49148385,
       id: 323119633,
     )
@@ -1432,6 +1467,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 838981074, "namespace" => "translation", "key" => "title_fr", "value" => "Le Article", "description" => "Article French title translation", "owner_id" => 134645308, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "article", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/838981074"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       article_id: 674387490,
       id: 838981074,
     )
@@ -1465,6 +1501,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 915396079, "namespace" => "notes", "key" => "buyer", "value" => "Notes about this buyer", "description" => "This field is for buyer notes", "owner_id" => 450789469, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "order", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/915396079"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       order_id: 450789469,
       id: 915396079,
     )
@@ -1498,6 +1535,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"metafield" => {"id" => 721389482, "namespace" => "affiliates", "key" => "app_key", "value" => "app_key", "description" => nil, "owner_id" => 548380009, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:27:29-04:00", "owner_resource" => "shop", "type" => "string", "admin_graphql_api_id" => "gid://shopify/Metafield/721389482"}}), headers: {})
 
     response = ShopifyAPI::Metafield.find(
+      session: @shopify_api_config.active_session,
       id: 721389482,
     )
 
@@ -1529,7 +1567,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "a translated blog title", "owner_id" => 241253187, "namespace" => "translation", "key" => "title_fr", "id" => 534526895, "description" => "Blog French title translation", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:33:38-04:00", "owner_resource" => "blog", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/534526895"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.blog_id = 382285388
     metafield.id = 534526895
     metafield.value = "a translated blog title"
@@ -1564,7 +1602,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "seo title", "owner_id" => 482865238, "namespace" => "global", "key" => "title_tag", "id" => 1010236510, "description" => nil, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:35:33-04:00", "owner_resource" => "collection", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1010236510"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.collection_id = 482865238
     metafield.id = 1010236510
     metafield.value = "seo title"
@@ -1599,7 +1637,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "yes", "owner_id" => 207119551, "namespace" => "discounts", "key" => "returning_customer", "id" => 220591908, "description" => "Customer deserves discount", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:32:58-04:00", "owner_resource" => "customer", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/220591908"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.customer_id = 207119551
     metafield.id = 220591908
     metafield.value = "yes"
@@ -1634,7 +1672,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "110000", "owner_id" => 622762746, "namespace" => "notes", "key" => "note", "id" => 106172460, "description" => "This is for notes", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:35:10-04:00", "owner_resource" => "draft_order", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/106172460"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.draft_order_id = 622762746
     metafield.id = 106172460
     metafield.value = "110000"
@@ -1669,7 +1707,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "An updated translation", "owner_id" => 131092082, "namespace" => "translation", "key" => "title_fr", "id" => 290519330, "description" => "Page French title translation", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:35:22-04:00", "owner_resource" => "page", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/290519330"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.page_id = 131092082
     metafield.id = 290519330
     metafield.value = "An updated translation"
@@ -1704,7 +1742,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "having fun", "owner_id" => 632910392, "namespace" => "my_fields", "key" => "best_for", "id" => 1001077698, "description" => nil, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:34:43-04:00", "owner_resource" => "product", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/1001077698"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.product_id = 632910392
     metafield.id = 1001077698
     metafield.value = "having fun"
@@ -1739,7 +1777,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "translated description", "owner_id" => 850703190, "namespace" => "translation", "key" => "title_fr", "id" => 625663657, "description" => "French product image title", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:33:04-04:00", "owner_resource" => "product_image", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/625663657"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.product_image_id = 850703190
     metafield.id = 625663657
     metafield.value = "translated description"
@@ -1774,7 +1812,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "Red", "owner_id" => 808950810, "namespace" => "my_fields", "key" => "color", "id" => 323119633, "description" => nil, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:35:08-04:00", "owner_resource" => "variant", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/323119633"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.variant_id = 49148385
     metafield.id = 323119633
     metafield.value = "Red"
@@ -1809,7 +1847,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "[\"something new\"]", "owner_id" => 548380009, "namespace" => "affiliates", "key" => "app_key", "id" => 721389482, "description" => nil, "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:33:32-04:00", "owner_resource" => "shop", "type" => "list.single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/721389482"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.id = 721389482
     metafield.value = "[\"something new\"]"
     metafield.type = "list.single_line_text_field"
@@ -1843,7 +1881,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "a translated title", "owner_id" => 134645308, "namespace" => "translation", "key" => "title_fr", "id" => 838981074, "description" => "Article French title translation", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:35:04-04:00", "owner_resource" => "article", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/838981074"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.article_id = 674387490
     metafield.id = 838981074
     metafield.value = "a translated title"
@@ -1878,7 +1916,7 @@ class Metafield202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"metafield" => {"value" => "Provided a discount code", "owner_id" => 450789469, "namespace" => "notes", "key" => "buyer", "id" => 915396079, "description" => "This field is for buyer notes", "created_at" => "2023-06-14T14:27:29-04:00", "updated_at" => "2023-06-14T14:32:26-04:00", "owner_resource" => "order", "type" => "single_line_text_field", "admin_graphql_api_id" => "gid://shopify/Metafield/915396079"}}), headers: {})
 
-    response = metafield = ShopifyAPI::Metafield.new
+    response = metafield = ShopifyAPI::Metafield.new(session: @shopify_api_config.active_session)
     metafield.order_id = 450789469
     metafield.id = 915396079
     metafield.value = "Provided a discount code"
@@ -1914,6 +1952,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       blog_id: 382285388,
       id: 534526895,
     )
@@ -1947,6 +1986,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       collection_id: 482865238,
       id: 1010236510,
     )
@@ -1980,6 +2020,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       customer_id: 207119551,
       id: 220591908,
     )
@@ -2013,6 +2054,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       draft_order_id: 622762746,
       id: 106172460,
     )
@@ -2046,6 +2088,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       page_id: 131092082,
       id: 290519330,
     )
@@ -2079,6 +2122,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       product_id: 632910392,
       id: 1001077698,
     )
@@ -2112,6 +2156,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       product_image_id: 850703190,
       id: 625663657,
     )
@@ -2145,6 +2190,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       variant_id: 49148385,
       id: 323119633,
     )
@@ -2178,6 +2224,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       article_id: 674387490,
       id: 838981074,
     )
@@ -2211,6 +2258,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       order_id: 450789469,
       id: 915396079,
     )
@@ -2244,6 +2292,7 @@ class Metafield202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Metafield.delete(
+      session: @shopify_api_config.active_session,
       id: 721389482,
     )
 

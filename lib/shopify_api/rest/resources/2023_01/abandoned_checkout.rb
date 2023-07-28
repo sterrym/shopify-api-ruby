@@ -151,6 +151,7 @@ module ShopifyAPI
     class << self
       sig do
         params(
+          session: Auth::Session,
           since_id: T.untyped,
           created_at_min: T.untyped,
           created_at_max: T.untyped,
@@ -158,11 +159,11 @@ module ShopifyAPI
           updated_at_max: T.untyped,
           status: T.untyped,
           limit: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def checkouts(
+        session: ShopifyAPI::Context.active_session,
         since_id: nil,
         created_at_min: nil,
         created_at_max: nil,
@@ -170,7 +171,6 @@ module ShopifyAPI
         updated_at_max: nil,
         status: nil,
         limit: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         request(

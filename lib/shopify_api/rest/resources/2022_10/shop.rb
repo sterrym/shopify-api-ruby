@@ -196,14 +196,14 @@ module ShopifyAPI
     class << self
       sig do
         params(
-          fields: T.untyped,
           session: Auth::Session,
+          fields: T.untyped,
           kwargs: T.untyped
         ).returns(T::Array[Shop])
       end
       def all(
-        fields: nil,
         session: ShopifyAPI::Context.active_session,
+        fields: nil,
         **kwargs
       )
         response = base_find(

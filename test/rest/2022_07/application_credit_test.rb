@@ -19,14 +19,16 @@ class ApplicationCredit202207Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-07")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-07")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,7 @@ class ApplicationCredit202207Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"application_credit" => {"id" => 1031636128, "amount" => "5.00", "description" => "application credit for refund", "test" => nil, "currency" => "USD"}}), headers: {})
 
-    response = application_credit = ShopifyAPI::ApplicationCredit.new
+    response = application_credit = ShopifyAPI::ApplicationCredit.new(session: @shopify_api_config.active_session)
     application_credit.description = "application credit for refund"
     application_credit.amount = "5.00"
     application_credit.save
@@ -71,9 +73,9 @@ class ApplicationCredit202207Test < Test::Unit::TestCase
         headers: {"X-Shopify-Access-Token"=>"this_is_a_test_token", "Accept"=>"application/json", "Content-Type"=>"application/json"},
         body: { "application_credit" => hash_including({"description" => "application credit for refund", "amount" => "5.00", "test" => true}) }
       )
-      .to_return(status: 200, body: JSON.generate({"application_credit" => {"id" => 1031636127, "amount" => "5.00", "description" => "application credit for refund", "test" => true, "currency" => "USD"}}), headers: {})
+      .to_return(status: 200, body: JSON.generate({"application_credit" => {"id" => 1031636129, "amount" => "5.00", "description" => "application credit for refund", "test" => true, "currency" => "USD"}}), headers: {})
 
-    response = application_credit = ShopifyAPI::ApplicationCredit.new
+    response = application_credit = ShopifyAPI::ApplicationCredit.new(session: @shopify_api_config.active_session)
     application_credit.description = "application credit for refund"
     application_credit.amount = "5.00"
     application_credit.test = true
@@ -107,7 +109,9 @@ class ApplicationCredit202207Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"application_credits" => [{"id" => 140583599, "amount" => "5.00", "description" => "credit for application refund", "test" => nil, "currency" => "USD"}]}), headers: {})
 
-    response = ShopifyAPI::ApplicationCredit.all
+    response = ShopifyAPI::ApplicationCredit.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-07/application_credits.json")
 
@@ -138,6 +142,7 @@ class ApplicationCredit202207Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"application_credit" => {"id" => 140583599, "amount" => "5.00", "description" => "credit for application refund", "test" => nil, "currency" => "USD"}}), headers: {})
 
     response = ShopifyAPI::ApplicationCredit.find(
+      session: @shopify_api_config.active_session,
       id: 140583599,
     )
 

@@ -80,20 +80,20 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           since_id: T.untyped,
           last_id: T.untyped,
           status: T.untyped,
           initiated_at: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[Dispute])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         since_id: nil,
         last_id: nil,
         status: nil,
         initiated_at: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(

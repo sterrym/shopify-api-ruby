@@ -157,6 +157,7 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           limit: T.untyped,
           since_id: T.untyped,
           created_at_min: T.untyped,
@@ -168,11 +169,11 @@ module ShopifyAPI
           ends_at_min: T.untyped,
           ends_at_max: T.untyped,
           times_used: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[PriceRule])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         limit: nil,
         since_id: nil,
         created_at_min: nil,
@@ -184,7 +185,6 @@ module ShopifyAPI
         ends_at_min: nil,
         ends_at_max: nil,
         times_used: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(

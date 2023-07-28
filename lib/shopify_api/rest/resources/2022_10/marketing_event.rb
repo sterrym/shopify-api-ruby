@@ -122,16 +122,16 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           limit: T.untyped,
           offset: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[MarketingEvent])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         limit: nil,
         offset: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(

@@ -19,14 +19,16 @@ class Comment202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -41,6 +43,7 @@ class Comment202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"comments" => [{"id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "status" => "unapproved", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1", "published_at" => nil}]}), headers: {})
 
     response = ShopifyAPI::Comment.all(
+      session: @shopify_api_config.active_session,
       since_id: "118373535",
     )
 
@@ -73,6 +76,7 @@ class Comment202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"comments" => [{"id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "status" => "unapproved", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1", "published_at" => nil}, {"id" => 118373535, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "status" => "published", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1", "published_at" => nil}]}), headers: {})
 
     response = ShopifyAPI::Comment.all(
+      session: @shopify_api_config.active_session,
       article_id: "134645308",
       blog_id: "241253187",
     )
@@ -106,6 +110,7 @@ class Comment202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"comments" => [{"id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "status" => "unapproved", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1", "published_at" => nil}, {"id" => 118373535, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "status" => "published", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1", "published_at" => nil}]}), headers: {})
 
     response = ShopifyAPI::Comment.all(
+      session: @shopify_api_config.active_session,
       blog_id: "241253187",
     )
 
@@ -137,7 +142,9 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"comments" => [{"id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "status" => "unapproved", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1", "published_at" => nil}, {"id" => 118373535, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "status" => "published", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1", "published_at" => nil}]}), headers: {})
 
-    response = ShopifyAPI::Comment.all
+    response = ShopifyAPI::Comment.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/comments.json")
 
@@ -168,6 +175,7 @@ class Comment202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 2}), headers: {})
 
     response = ShopifyAPI::Comment.count(
+      session: @shopify_api_config.active_session,
       article_id: "134645308",
       blog_id: "241253187",
     )
@@ -201,6 +209,7 @@ class Comment202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 2}), headers: {})
 
     response = ShopifyAPI::Comment.count(
+      session: @shopify_api_config.active_session,
       blog_id: "241253187",
     )
 
@@ -232,7 +241,9 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"count" => 2}), headers: {})
 
-    response = ShopifyAPI::Comment.count
+    response = ShopifyAPI::Comment.count(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/comments/count.json")
 
@@ -263,6 +274,7 @@ class Comment202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"comment" => {"id" => 118373535, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "status" => "published", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1", "published_at" => nil}}), headers: {})
 
     response = ShopifyAPI::Comment.find(
+      session: @shopify_api_config.active_session,
       id: 118373535,
     )
 
@@ -294,7 +306,7 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"comment" => {"author" => "Your new name", "body" => "You can even update through a web service.", "email" => "your@updated-email.com", "published_at" => "2023-06-14T14:19:29-04:00", "id" => 118373535, "body_html" => "<p>You can even update through a web service.</p>", "status" => "published", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:19:30-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1"}}), headers: {})
 
-    response = comment = ShopifyAPI::Comment.new
+    response = comment = ShopifyAPI::Comment.new(session: @shopify_api_config.active_session)
     comment.id = 118373535
     comment.body = "You can even update through a web service."
     comment.author = "Your new name"
@@ -330,7 +342,7 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"comment" => {"id" => 757536351, "body" => "I like comments\nAnd I like posting them *RESTfully*.", "body_html" => "<p>I like comments<br>\nAnd I like posting them <strong>RESTfully</strong>.</p>", "author" => "Your name", "email" => "your@email.com", "status" => "pending", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:19:48-04:00", "updated_at" => "2023-06-14T14:19:48-04:00", "ip" => "107.20.160.121", "user_agent" => nil, "published_at" => nil}}), headers: {})
 
-    response = comment = ShopifyAPI::Comment.new
+    response = comment = ShopifyAPI::Comment.new(session: @shopify_api_config.active_session)
     comment.body = "I like comments\nAnd I like posting them *RESTfully*."
     comment.author = "Your name"
     comment.email = "your@email.com"
@@ -367,7 +379,7 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"published_at" => nil, "status" => "spam", "id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:19:33-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1"}), headers: {})
 
-    response = comment = ShopifyAPI::Comment.new
+    response = comment = ShopifyAPI::Comment.new(session: @shopify_api_config.active_session)
     comment.id = 653537639
     comment.spam
 
@@ -399,7 +411,7 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"published_at" => "2023-06-14T14:19:47-04:00", "status" => "published", "id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:19:47-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1"}), headers: {})
 
-    response = comment = ShopifyAPI::Comment.new
+    response = comment = ShopifyAPI::Comment.new(session: @shopify_api_config.active_session)
     comment.id = 653537639
     comment.not_spam
 
@@ -431,7 +443,7 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"published_at" => "2023-06-14T14:19:26-04:00", "status" => "published", "id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:19:26-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1"}), headers: {})
 
-    response = comment = ShopifyAPI::Comment.new
+    response = comment = ShopifyAPI::Comment.new(session: @shopify_api_config.active_session)
     comment.id = 653537639
     comment.approve
 
@@ -463,7 +475,7 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"published_at" => nil, "status" => "removed", "id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:19:37-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1"}), headers: {})
 
-    response = comment = ShopifyAPI::Comment.new
+    response = comment = ShopifyAPI::Comment.new(session: @shopify_api_config.active_session)
     comment.id = 653537639
     comment.remove
 
@@ -495,7 +507,7 @@ class Comment202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"published_at" => "2023-06-14T14:19:55-04:00", "status" => "published", "id" => 653537639, "body" => "Hi author, I really _like_ what you're doing there.", "body_html" => "<p>Hi author, I really <em>like</em> what you're doing there.</p>", "author" => "Soleone", "email" => "soleone@example.net", "article_id" => 134645308, "blog_id" => 241253187, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:19:55-04:00", "ip" => "127.0.0.1", "user_agent" => "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_4; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.2 Safari/525.20.1"}), headers: {})
 
-    response = comment = ShopifyAPI::Comment.new
+    response = comment = ShopifyAPI::Comment.new(session: @shopify_api_config.active_session)
     comment.id = 653537639
     comment.restore
 

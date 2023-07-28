@@ -19,14 +19,16 @@ class MobilePlatformApplication202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,9 @@ class MobilePlatformApplication202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"mobile_platform_applications" => [{"id" => 1066176002, "application_id" => "X1Y2.ca.domain.app", "platform" => "ios", "created_at" => "2023-06-14T14:36:20-04:00", "updated_at" => "2023-06-14T14:36:20-04:00", "sha256_cert_fingerprints" => [], "enabled_universal_or_app_links" => true, "enabled_shared_webcredentials" => true, "enabled_app_clips" => false, "app_clip_application_id" => nil}, {"id" => 1066176003, "application_id" => "com.example", "platform" => "android", "created_at" => "2023-06-14T14:36:20-04:00", "updated_at" => "2023-06-14T14:36:20-04:00", "sha256_cert_fingerprints" => ["14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5"], "enabled_universal_or_app_links" => true, "enabled_shared_webcredentials" => false, "enabled_app_clips" => false, "app_clip_application_id" => nil}]}), headers: {})
 
-    response = ShopifyAPI::MobilePlatformApplication.all
+    response = ShopifyAPI::MobilePlatformApplication.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/mobile_platform_applications.json")
 
@@ -70,7 +74,7 @@ class MobilePlatformApplication202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"mobile_platform_application" => {"id" => 1066175997, "application_id" => "com.example", "platform" => "android", "created_at" => "2023-06-14T14:36:13-04:00", "updated_at" => "2023-06-14T14:36:13-04:00", "sha256_cert_fingerprints" => ["14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5"], "enabled_universal_or_app_links" => true, "enabled_shared_webcredentials" => false, "enabled_app_clips" => false, "app_clip_application_id" => nil}}), headers: {})
 
-    response = mobile_platform_application = ShopifyAPI::MobilePlatformApplication.new
+    response = mobile_platform_application = ShopifyAPI::MobilePlatformApplication.new(session: @shopify_api_config.active_session)
     mobile_platform_application.platform = "android"
     mobile_platform_application.application_id = "com.example"
     mobile_platform_application.sha256_cert_fingerprints = [
@@ -107,7 +111,7 @@ class MobilePlatformApplication202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"mobile_platform_application" => {"id" => 1066176001, "application_id" => "X1Y2.ca.domain.app", "platform" => "ios", "created_at" => "2023-06-14T14:36:20-04:00", "updated_at" => "2023-06-14T14:36:20-04:00", "sha256_cert_fingerprints" => [], "enabled_universal_or_app_links" => true, "enabled_shared_webcredentials" => true, "enabled_app_clips" => false, "app_clip_application_id" => nil}}), headers: {})
 
-    response = mobile_platform_application = ShopifyAPI::MobilePlatformApplication.new
+    response = mobile_platform_application = ShopifyAPI::MobilePlatformApplication.new(session: @shopify_api_config.active_session)
     mobile_platform_application.platform = "ios"
     mobile_platform_application.application_id = "X1Y2.ca.domain.app"
     mobile_platform_application.enabled_universal_or_app_links = true
@@ -143,6 +147,7 @@ class MobilePlatformApplication202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"mobile_platform_application" => {"id" => 1066175998, "application_id" => "X1Y2.ca.domain.app", "platform" => "ios", "created_at" => "2023-06-14T14:36:13-04:00", "updated_at" => "2023-06-14T14:36:13-04:00", "sha256_cert_fingerprints" => [], "enabled_universal_or_app_links" => true, "enabled_shared_webcredentials" => true, "enabled_app_clips" => false, "app_clip_application_id" => nil}}), headers: {})
 
     response = ShopifyAPI::MobilePlatformApplication.find(
+      session: @shopify_api_config.active_session,
       id: 1066175998,
     )
 
@@ -174,7 +179,7 @@ class MobilePlatformApplication202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"mobile_platform_application" => {"application_id" => "com.example.news.app", "platform" => "android", "sha256_cert_fingerprints" => ["14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5"], "enabled_universal_or_app_links" => true, "enabled_shared_webcredentials" => false, "id" => 1066175996, "created_at" => "2023-06-14T14:36:09-04:00", "updated_at" => "2023-06-14T14:36:11-04:00", "enabled_app_clips" => false, "app_clip_application_id" => nil}}), headers: {})
 
-    response = mobile_platform_application = ShopifyAPI::MobilePlatformApplication.new
+    response = mobile_platform_application = ShopifyAPI::MobilePlatformApplication.new(session: @shopify_api_config.active_session)
     mobile_platform_application.id = 1066175996
     mobile_platform_application.application_id = "com.example.news.app"
     mobile_platform_application.platform = "android"
@@ -217,7 +222,7 @@ class MobilePlatformApplication202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"mobile_platform_application" => {"application_id" => "A1B2.ca.domain.app", "platform" => "ios", "sha256_cert_fingerprints" => [], "enabled_universal_or_app_links" => true, "enabled_shared_webcredentials" => true, "id" => 1066176000, "created_at" => "2023-06-14T14:36:17-04:00", "updated_at" => "2023-06-14T14:36:18-04:00", "enabled_app_clips" => false, "app_clip_application_id" => nil}}), headers: {})
 
-    response = mobile_platform_application = ShopifyAPI::MobilePlatformApplication.new
+    response = mobile_platform_application = ShopifyAPI::MobilePlatformApplication.new(session: @shopify_api_config.active_session)
     mobile_platform_application.id = 1066176000
     mobile_platform_application.application_id = "A1B2.ca.domain.app"
     mobile_platform_application.platform = "ios"
@@ -259,6 +264,7 @@ class MobilePlatformApplication202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::MobilePlatformApplication.delete(
+      session: @shopify_api_config.active_session,
       id: 1066175999,
     )
 

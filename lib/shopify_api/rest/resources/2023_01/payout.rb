@@ -62,24 +62,24 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           since_id: T.untyped,
           last_id: T.untyped,
           date_min: T.untyped,
           date_max: T.untyped,
           date: T.untyped,
           status: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[Payout])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         since_id: nil,
         last_id: nil,
         date_min: nil,
         date_max: nil,
         date: nil,
         status: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(

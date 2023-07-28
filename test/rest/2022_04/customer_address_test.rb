@@ -19,14 +19,16 @@ class CustomerAddress202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -41,6 +43,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"addresses" => [{"id" => 207119551, "customer_id" => 207119551, "first_name" => nil, "last_name" => nil, "company" => nil, "address1" => "Chestnut Street 92", "address2" => "", "city" => "Louisville", "province" => "Kentucky", "country" => "United States", "zip" => "40202", "phone" => "555-625-1199", "name" => "", "province_code" => "KY", "country_code" => "US", "country_name" => "United States", "default" => true}]}), headers: {})
 
     response = ShopifyAPI::CustomerAddress.all(
+      session: @shopify_api_config.active_session,
       customer_id: 207119551,
       limit: "1",
     )
@@ -74,6 +77,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"addresses" => [{"id" => 207119551, "customer_id" => 207119551, "first_name" => nil, "last_name" => nil, "company" => nil, "address1" => "Chestnut Street 92", "address2" => "", "city" => "Louisville", "province" => "Kentucky", "country" => "United States", "zip" => "40202", "phone" => "555-625-1199", "name" => "", "province_code" => "KY", "country_code" => "US", "country_name" => "United States", "default" => true}]}), headers: {})
 
     response = ShopifyAPI::CustomerAddress.all(
+      session: @shopify_api_config.active_session,
       customer_id: 207119551,
     )
 
@@ -106,6 +110,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"customer_address" => {"id" => 207119551, "customer_id" => 207119551, "first_name" => nil, "last_name" => nil, "company" => nil, "address1" => "Chestnut Street 92", "address2" => "", "city" => "Louisville", "province" => "Kentucky", "country" => "United States", "zip" => "40202", "phone" => "555-625-1199", "name" => "", "province_code" => "KY", "country_code" => "US", "country_name" => "United States", "default" => true}}), headers: {})
 
     response = ShopifyAPI::CustomerAddress.find(
+      session: @shopify_api_config.active_session,
       customer_id: 207119551,
       id: 207119551,
     )
@@ -138,7 +143,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"customer_address" => {"customer_id" => 207119551, "zip" => "90210", "country" => "United States", "province" => "Kentucky", "city" => "Louisville", "address1" => "Chestnut Street 92", "address2" => "", "first_name" => nil, "last_name" => nil, "company" => nil, "phone" => "555-625-1199", "id" => 207119551, "name" => "", "province_code" => "KY", "country_code" => "US", "country_name" => "United States", "default" => true}}), headers: {})
 
-    response = customer_address = ShopifyAPI::CustomerAddress.new
+    response = customer_address = ShopifyAPI::CustomerAddress.new(session: @shopify_api_config.active_session)
     customer_address.customer_id = 207119551
     customer_address.id = 207119551
     customer_address.zip = "90210"
@@ -172,7 +177,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"customer_address" => {"customer_id" => 207119551, "address1" => "Apartment 23", "address2" => "Chestnut Street 92", "country" => "United States", "province" => "Kentucky", "zip" => "40202", "city" => "Louisville", "first_name" => nil, "last_name" => nil, "company" => nil, "phone" => "555-625-1199", "id" => 207119551, "name" => "", "province_code" => "KY", "country_code" => "US", "country_name" => "United States", "default" => true}}), headers: {})
 
-    response = customer_address = ShopifyAPI::CustomerAddress.new
+    response = customer_address = ShopifyAPI::CustomerAddress.new(session: @shopify_api_config.active_session)
     customer_address.customer_id = 207119551
     customer_address.id = 207119551
     customer_address.address1 = "Apartment 23"
@@ -208,6 +213,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::CustomerAddress.delete(
+      session: @shopify_api_config.active_session,
       customer_id: 207119551,
       id: 1053317316,
     )
@@ -240,7 +246,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"customer_address" => {"id" => 1053317318, "customer_id" => 207119551, "first_name" => "Samuel", "last_name" => "de Champlain", "company" => "Fancy Co.", "address1" => "1 Rue des Carrieres", "address2" => "Suite 1234", "city" => "Montreal", "province" => "Quebec", "country" => "Canada", "zip" => "G1R 4P5", "phone" => "819-555-5555", "name" => "Samuel de Champlain", "province_code" => "QC", "country_code" => "CA", "country_name" => "Canada", "default" => false}}), headers: {})
 
-    response = customer_address = ShopifyAPI::CustomerAddress.new
+    response = customer_address = ShopifyAPI::CustomerAddress.new(session: @shopify_api_config.active_session)
     customer_address.customer_id = 207119551
     customer_address.address1 = "1 Rue des Carrieres"
     customer_address.address2 = "Suite 1234"
@@ -286,7 +292,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
-    response = customer_address = ShopifyAPI::CustomerAddress.new
+    response = customer_address = ShopifyAPI::CustomerAddress.new(session: @shopify_api_config.active_session)
     customer_address.customer_id = 207119551
     customer_address.set(
       address_ids: ["1053317319"],
@@ -321,7 +327,7 @@ class CustomerAddress202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"customer_address" => {"id" => 1053317317, "customer_id" => 207119551, "first_name" => "Bob", "last_name" => "Norman", "company" => nil, "address1" => "Chestnut Street 92", "address2" => "", "city" => "Louisville", "province" => "Kentucky", "country" => "United States", "zip" => "40202", "phone" => "555-625-1199", "name" => "Bob Norman", "province_code" => "KY", "country_code" => "US", "country_name" => "United States", "default" => true}}), headers: {})
 
-    response = customer_address = ShopifyAPI::CustomerAddress.new
+    response = customer_address = ShopifyAPI::CustomerAddress.new(session: @shopify_api_config.active_session)
     customer_address.customer_id = 207119551
     customer_address.id = 1053317317
     customer_address.default

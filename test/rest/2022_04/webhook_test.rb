@@ -19,14 +19,16 @@ class Webhook202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,9 @@ class Webhook202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"webhooks" => [{"id" => 4759306, "address" => "https://apple.com", "topic" => "orders/create", "created_at" => "2023-06-15T10:50:10-04:00", "updated_at" => "2023-06-15T10:50:10-04:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}, {"id" => 892403750, "address" => "https://example.org/fully_loaded_1", "topic" => "orders/cancelled", "created_at" => "2021-12-01T05:23:43-05:00", "updated_at" => "2021-12-01T05:23:43-05:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}, {"id" => 901431826, "address" => "https://apple.com/uninstall", "topic" => "app/uninstalled", "created_at" => "2023-06-15T10:50:10-04:00", "updated_at" => "2023-06-15T10:50:10-04:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}, {"id" => 1014196360, "address" => "https://example.org/app_uninstalled", "topic" => "app/uninstalled", "created_at" => "2023-06-15T10:50:10-04:00", "updated_at" => "2023-06-15T10:50:10-04:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}]}), headers: {})
 
-    response = ShopifyAPI::Webhook.all
+    response = ShopifyAPI::Webhook.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/webhooks.json")
 
@@ -71,6 +75,7 @@ class Webhook202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"webhooks" => [{"id" => 1014196360, "address" => "https://example.org/app_uninstalled", "topic" => "app/uninstalled", "created_at" => "2023-06-15T10:50:10-04:00", "updated_at" => "2023-06-15T10:50:10-04:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}]}), headers: {})
 
     response = ShopifyAPI::Webhook.all(
+      session: @shopify_api_config.active_session,
       since_id: "901431826",
     )
 
@@ -102,7 +107,7 @@ class Webhook202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"webhook" => {"id" => 5487571835, "address" => "pubsub://projectName:topicName", "topic" => "customers/update", "created_at" => "2023-06-15T10:52:37-04:00", "updated_at" => "2023-06-15T10:52:37-04:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}}), headers: {})
 
-    response = webhook = ShopifyAPI::Webhook.new
+    response = webhook = ShopifyAPI::Webhook.new(session: @shopify_api_config.active_session)
     webhook.address = "pubsub://projectName:topicName"
     webhook.topic = "customers/update"
     webhook.format = "json"
@@ -136,7 +141,7 @@ class Webhook202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"webhook" => {"id" => 5487571823, "address" => "arn:aws:events:us-east-1::event-source/aws.partner/shopify.com/755357713/example-event-source", "topic" => "customers/update", "created_at" => "2023-06-15T10:51:12-04:00", "updated_at" => "2023-06-15T10:51:12-04:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}}), headers: {})
 
-    response = webhook = ShopifyAPI::Webhook.new
+    response = webhook = ShopifyAPI::Webhook.new(session: @shopify_api_config.active_session)
     webhook.address = "arn:aws:events:us-east-1::event-source/aws.partner/shopify.com/755357713/example-event-source"
     webhook.topic = "customers/update"
     webhook.format = "json"
@@ -170,7 +175,7 @@ class Webhook202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"webhook" => {"id" => 5487571869, "address" => "https://example.hostname.com/", "topic" => "orders/create", "created_at" => "2023-06-15T10:56:09-04:00", "updated_at" => "2023-06-15T10:56:09-04:00", "format" => "json", "fields" => ["id", "note"], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}}), headers: {})
 
-    response = webhook = ShopifyAPI::Webhook.new
+    response = webhook = ShopifyAPI::Webhook.new(session: @shopify_api_config.active_session)
     webhook.topic = "orders/create"
     webhook.address = "https://example.hostname.com/"
     webhook.format = "json"
@@ -209,6 +214,7 @@ class Webhook202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 1}), headers: {})
 
     response = ShopifyAPI::Webhook.count(
+      session: @shopify_api_config.active_session,
       topic: "orders/create",
     )
 
@@ -240,7 +246,9 @@ class Webhook202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"count" => 4}), headers: {})
 
-    response = ShopifyAPI::Webhook.count
+    response = ShopifyAPI::Webhook.count(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/webhooks/count.json")
 
@@ -271,6 +279,7 @@ class Webhook202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"webhook" => {"id" => 4759306, "address" => "https://apple.com", "topic" => "orders/create", "created_at" => "2023-06-15T10:50:10-04:00", "updated_at" => "2023-06-15T10:50:10-04:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}}), headers: {})
 
     response = ShopifyAPI::Webhook.find(
+      session: @shopify_api_config.active_session,
       id: 4759306,
     )
 
@@ -302,7 +311,7 @@ class Webhook202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"webhook" => {"id" => 4759306, "address" => "https://somewhere-else.com/", "topic" => "orders/create", "created_at" => "2023-06-15T10:50:10-04:00", "updated_at" => "2023-06-15T10:55:33-04:00", "format" => "json", "fields" => [], "metafield_namespaces" => [], "api_version" => "unstable", "private_metafield_namespaces" => []}}), headers: {})
 
-    response = webhook = ShopifyAPI::Webhook.new
+    response = webhook = ShopifyAPI::Webhook.new(session: @shopify_api_config.active_session)
     webhook.id = 4759306
     webhook.address = "https://somewhere-else.com/"
     webhook.save
@@ -336,6 +345,7 @@ class Webhook202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Webhook.delete(
+      session: @shopify_api_config.active_session,
       id: 4759306,
     )
 

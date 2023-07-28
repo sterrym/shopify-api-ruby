@@ -43,14 +43,14 @@ module ShopifyAPI
       sig do
         params(
           id: T.any(Integer, String),
-          fields: T.untyped,
-          session: Auth::Session
+          session: Auth::Session,
+          fields: T.untyped
         ).returns(T.nilable(Redirect))
       end
       def find(
         id:,
-        fields: nil,
-        session: ShopifyAPI::Context.active_session
+        session: ShopifyAPI::Context.active_session,
+        fields: nil
       )
         result = base_find(
           session: session,
@@ -81,22 +81,22 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           limit: T.untyped,
           since_id: T.untyped,
           path: T.untyped,
           target: T.untyped,
           fields: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[Redirect])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         limit: nil,
         since_id: nil,
         path: nil,
         target: nil,
         fields: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(
@@ -110,16 +110,16 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           path: T.untyped,
           target: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def count(
+        session: ShopifyAPI::Context.active_session,
         path: nil,
         target: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         request(

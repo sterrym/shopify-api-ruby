@@ -19,14 +19,16 @@ class Redirect202301Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2023-01")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2023-01")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -41,6 +43,7 @@ class Redirect202301Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"redirects" => [{"id" => 950115854, "path" => "/ibook", "target" => "/products/macbook"}]}), headers: {})
 
     response = ShopifyAPI::Redirect.all(
+      session: @shopify_api_config.active_session,
       since_id: "668809255",
     )
 
@@ -72,7 +75,9 @@ class Redirect202301Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"redirects" => [{"id" => 304339089, "path" => "/products.php", "target" => "/products"}, {"id" => 668809255, "path" => "/leopard", "target" => "/pages/macosx"}, {"id" => 950115854, "path" => "/ibook", "target" => "/products/macbook"}]}), headers: {})
 
-    response = ShopifyAPI::Redirect.all
+    response = ShopifyAPI::Redirect.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2023-01/redirects.json")
 
@@ -102,7 +107,9 @@ class Redirect202301Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"count" => 3}), headers: {})
 
-    response = ShopifyAPI::Redirect.count
+    response = ShopifyAPI::Redirect.count(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2023-01/redirects/count.json")
 
@@ -133,6 +140,7 @@ class Redirect202301Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"redirect" => {"id" => 668809255, "path" => "/leopard", "target" => "/pages/macosx"}}), headers: {})
 
     response = ShopifyAPI::Redirect.find(
+      session: @shopify_api_config.active_session,
       id: 668809255,
     )
 
@@ -164,7 +172,7 @@ class Redirect202301Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"redirect" => {"path" => "/powermac", "target" => "/pages/macpro", "id" => 950115854}}), headers: {})
 
-    response = redirect = ShopifyAPI::Redirect.new
+    response = redirect = ShopifyAPI::Redirect.new(session: @shopify_api_config.active_session)
     redirect.id = 950115854
     redirect.path = "/powermac"
     redirect.target = "/pages/macpro"
@@ -198,7 +206,7 @@ class Redirect202301Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"redirect" => {"path" => "/tiger", "target" => "/pages/macosx", "id" => 668809255}}), headers: {})
 
-    response = redirect = ShopifyAPI::Redirect.new
+    response = redirect = ShopifyAPI::Redirect.new(session: @shopify_api_config.active_session)
     redirect.id = 668809255
     redirect.path = "/tiger"
     redirect.save
@@ -231,7 +239,7 @@ class Redirect202301Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"redirect" => {"target" => "/pages/macpro", "path" => "/leopard", "id" => 668809255}}), headers: {})
 
-    response = redirect = ShopifyAPI::Redirect.new
+    response = redirect = ShopifyAPI::Redirect.new(session: @shopify_api_config.active_session)
     redirect.id = 668809255
     redirect.target = "/pages/macpro"
     redirect.save
@@ -265,6 +273,7 @@ class Redirect202301Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Redirect.delete(
+      session: @shopify_api_config.active_session,
       id: 668809255,
     )
 
@@ -294,9 +303,9 @@ class Redirect202301Test < Test::Unit::TestCase
         headers: {"X-Shopify-Access-Token"=>"this_is_a_test_token", "Accept"=>"application/json", "Content-Type"=>"application/json"},
         body: { "redirect" => hash_including({"path" => "/ipod", "target" => "/pages/itunes"}) }
       )
-      .to_return(status: 200, body: JSON.generate({"redirect" => {"id" => 984542200, "path" => "/ipod", "target" => "/pages/itunes"}}), headers: {})
+      .to_return(status: 200, body: JSON.generate({"redirect" => {"id" => 984542199, "path" => "/ipod", "target" => "/pages/itunes"}}), headers: {})
 
-    response = redirect = ShopifyAPI::Redirect.new
+    response = redirect = ShopifyAPI::Redirect.new(session: @shopify_api_config.active_session)
     redirect.path = "/ipod"
     redirect.target = "/pages/itunes"
     redirect.save
@@ -327,9 +336,9 @@ class Redirect202301Test < Test::Unit::TestCase
         headers: {"X-Shopify-Access-Token"=>"this_is_a_test_token", "Accept"=>"application/json", "Content-Type"=>"application/json"},
         body: { "redirect" => hash_including({"path" => "http://www.apple.com/forums", "target" => "http://forums.apple.com"}) }
       )
-      .to_return(status: 200, body: JSON.generate({"redirect" => {"id" => 984542199, "path" => "/forums", "target" => "http://forums.apple.com/"}}), headers: {})
+      .to_return(status: 200, body: JSON.generate({"redirect" => {"id" => 984542200, "path" => "/forums", "target" => "http://forums.apple.com/"}}), headers: {})
 
-    response = redirect = ShopifyAPI::Redirect.new
+    response = redirect = ShopifyAPI::Redirect.new(session: @shopify_api_config.active_session)
     redirect.path = "http://www.apple.com/forums"
     redirect.target = "http://forums.apple.com"
     redirect.save

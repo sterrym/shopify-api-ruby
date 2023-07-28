@@ -19,14 +19,16 @@ class LocationsForMove202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -41,6 +43,7 @@ class LocationsForMove202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"locations_for_move" => [{"location" => {"id" => 1072404546, "name" => "Alpha Location"}, "message" => "Current location.", "movable" => false}, {"location" => {"id" => 1072404547, "name" => "Bravo Location"}, "message" => "No items are stocked at this location.", "movable" => false}]}), headers: {})
 
     response = ShopifyAPI::LocationsForMove.all(
+      session: @shopify_api_config.active_session,
       fulfillment_order_id: 1046000832,
     )
 

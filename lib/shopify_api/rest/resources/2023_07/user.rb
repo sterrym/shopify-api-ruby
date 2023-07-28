@@ -90,16 +90,16 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           limit: T.untyped,
           page_info: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[User])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         limit: nil,
         page_info: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(

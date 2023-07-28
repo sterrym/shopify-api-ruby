@@ -69,14 +69,14 @@ module ShopifyAPI
       sig do
         params(
           theme_id: T.nilable(T.any(Integer, String)),
-          asset: T.nilable(T::Hash[T.untyped, T.untyped]),
-          session: Auth::Session
+          session: Auth::Session,
+          asset: T.nilable(T::Hash[T.untyped, T.untyped])
         ).returns(T.untyped)
       end
       def delete(
         theme_id: nil,
-        asset: nil,
-        session: ShopifyAPI::Context.active_session
+        session: ShopifyAPI::Context.active_session,
+        asset: nil
       )
         request(
           http_method: :delete,
@@ -90,17 +90,17 @@ module ShopifyAPI
       sig do
         params(
           theme_id: T.nilable(T.any(Integer, String)),
+          session: Auth::Session,
           fields: T.untyped,
           asset: T.nilable(T::Hash[T.untyped, T.untyped]),
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[Asset])
       end
       def all(
         theme_id: nil,
+        session: ShopifyAPI::Context.active_session,
         fields: nil,
         asset: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(

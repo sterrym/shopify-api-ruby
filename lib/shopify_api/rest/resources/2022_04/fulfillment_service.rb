@@ -105,14 +105,14 @@ module ShopifyAPI
 
       sig do
         params(
-          scope: T.untyped,
           session: Auth::Session,
+          scope: T.untyped,
           kwargs: T.untyped
         ).returns(T::Array[FulfillmentService])
       end
       def all(
-        scope: nil,
         session: ShopifyAPI::Context.active_session,
+        scope: nil,
         **kwargs
       )
         response = base_find(

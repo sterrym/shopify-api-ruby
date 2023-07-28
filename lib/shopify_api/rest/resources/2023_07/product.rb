@@ -85,14 +85,14 @@ module ShopifyAPI
       sig do
         params(
           id: T.any(Integer, String),
-          fields: T.untyped,
-          session: Auth::Session
+          session: Auth::Session,
+          fields: T.untyped
         ).returns(T.nilable(Product))
       end
       def find(
         id:,
-        fields: nil,
-        session: ShopifyAPI::Context.active_session
+        session: ShopifyAPI::Context.active_session,
+        fields: nil
       )
         result = base_find(
           session: session,
@@ -123,6 +123,7 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           ids: T.untyped,
           limit: T.untyped,
           since_id: T.untyped,
@@ -141,11 +142,11 @@ module ShopifyAPI
           published_status: T.untyped,
           fields: T.untyped,
           presentment_currencies: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[Product])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         ids: nil,
         limit: nil,
         since_id: nil,
@@ -164,7 +165,6 @@ module ShopifyAPI
         published_status: nil,
         fields: nil,
         presentment_currencies: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(
@@ -178,6 +178,7 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           vendor: T.untyped,
           product_type: T.untyped,
           collection_id: T.untyped,
@@ -188,11 +189,11 @@ module ShopifyAPI
           published_at_min: T.untyped,
           published_at_max: T.untyped,
           published_status: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def count(
+        session: ShopifyAPI::Context.active_session,
         vendor: nil,
         product_type: nil,
         collection_id: nil,
@@ -203,7 +204,6 @@ module ShopifyAPI
         published_at_min: nil,
         published_at_max: nil,
         published_status: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         request(

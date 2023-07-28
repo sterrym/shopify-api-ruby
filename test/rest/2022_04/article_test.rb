@@ -19,14 +19,16 @@ class Article202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -41,6 +43,7 @@ class Article202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"articles" => [{"id" => 1051293780, "title" => "Welcome to the world of tomorrow!", "created_at" => "2013-11-06T19:00:00-05:00", "body_html" => "Good news, everybody!", "blog_id" => 241253187, "author" => "dennis", "user_id" => nil, "published_at" => nil, "updated_at" => "2023-06-14T14:27:29-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "welcome-to-the-world-of-tomorrow", "tags" => "", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/1051293780"}, {"id" => 989034056, "title" => "Some crazy article I'm coming up with", "created_at" => "2008-12-31T19:00:00-05:00", "body_html" => "I have no idea what to write about, but it's going to rock!", "blog_id" => 241253187, "author" => "John", "user_id" => nil, "published_at" => nil, "updated_at" => "2009-01-31T19:00:00-05:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "some-crazy-article-im-coming-up-with", "tags" => "Mystery", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/989034056"}, {"id" => 294160202, "title" => "Just us bots here", "created_at" => "2013-11-06T19:00:00-05:00", "body_html" => "beep boop", "blog_id" => 241253187, "author" => "dennis", "user_id" => nil, "published_at" => nil, "updated_at" => "2023-06-14T14:27:29-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "just-us-bots-here", "tags" => "", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/294160202"}, {"id" => 134645308, "title" => "get on the train now", "created_at" => "2008-07-31T20:00:00-04:00", "body_html" => "<p>Do <em>you</em> have an <strong>IPod</strong> yet?</p>", "blog_id" => 241253187, "author" => "Dennis", "user_id" => 548380009, "published_at" => "2008-07-31T20:00:00-04:00", "updated_at" => "2008-07-31T20:00:00-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "get-on-the-train-now", "tags" => "Announcing", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308", "image" => {"created_at" => "2023-06-14T14:27:29-04:00", "alt" => "iMac", "width" => 123, "height" => 456, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/imac.jpg?v=1686767249"}}]}), headers: {})
 
     response = ShopifyAPI::Article.all(
+      session: @shopify_api_config.active_session,
       blog_id: 241253187,
     )
 
@@ -73,6 +76,7 @@ class Article202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"articles" => [{"id" => 294160202, "title" => "Just us bots here", "created_at" => "2013-11-06T19:00:00-05:00", "body_html" => "beep boop", "blog_id" => 241253187, "author" => "dennis", "user_id" => nil, "published_at" => nil, "updated_at" => "2023-06-14T14:27:29-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "just-us-bots-here", "tags" => "", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/294160202"}, {"id" => 989034056, "title" => "Some crazy article I'm coming up with", "created_at" => "2008-12-31T19:00:00-05:00", "body_html" => "I have no idea what to write about, but it's going to rock!", "blog_id" => 241253187, "author" => "John", "user_id" => nil, "published_at" => nil, "updated_at" => "2009-01-31T19:00:00-05:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "some-crazy-article-im-coming-up-with", "tags" => "Mystery", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/989034056"}, {"id" => 1051293780, "title" => "Welcome to the world of tomorrow!", "created_at" => "2013-11-06T19:00:00-05:00", "body_html" => "Good news, everybody!", "blog_id" => 241253187, "author" => "dennis", "user_id" => nil, "published_at" => nil, "updated_at" => "2023-06-14T14:27:29-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "welcome-to-the-world-of-tomorrow", "tags" => "", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/1051293780"}]}), headers: {})
 
     response = ShopifyAPI::Article.all(
+      session: @shopify_api_config.active_session,
       blog_id: 241253187,
       since_id: "134645308",
     )
@@ -105,7 +109,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"id" => 1051293786, "title" => "My new Article title", "created_at" => "2023-06-14T14:51:30-04:00", "body_html" => "<h1>I like articles</h1>\n<p><strong>Yea</strong>, I like posting them through <span class=\"caps\">REST</span>.</p>", "blog_id" => 241253187, "author" => "John Smith", "user_id" => 548380009, "published_at" => "2011-03-24T11:45:47-04:00", "updated_at" => "2023-06-14T14:51:30-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "my-new-article-title", "tags" => "Has Been Tagged, This Post", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/1051293786"}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.title = "My new Article title"
     article.author = "John Smith"
@@ -142,7 +146,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"id" => 1051293785, "title" => "My new Article title", "created_at" => "2023-06-14T14:51:21-04:00", "body_html" => "<h1>I like articles</h1>\n<p><strong>Yea</strong>, I like posting them through <span class=\"caps\">REST</span>.</p>", "blog_id" => 241253187, "author" => "John Smith", "user_id" => 548380009, "published_at" => "2011-03-24T11:45:47-04:00", "updated_at" => "2023-06-14T14:51:21-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "my-new-article-title", "tags" => "Has Been Tagged, This Post", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/1051293785", "image" => {"created_at" => "2023-06-14T14:51:21-04:00", "alt" => nil, "width" => 1, "height" => 1, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/df3e567d6f16d040326c7a0ea29a4f41.gif?v=1686768681"}}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.title = "My new Article title"
     article.author = "John Smith"
@@ -182,7 +186,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"id" => 1051293791, "title" => "My new Article title", "created_at" => "2023-06-14T14:52:09-04:00", "body_html" => "<h1>I like articles</h1>\n<p><strong>Yea</strong>, I like posting them through <span class=\"caps\">REST</span>.</p>", "blog_id" => 241253187, "author" => "John Smith", "user_id" => 548380009, "published_at" => "2011-03-24T11:45:47-04:00", "updated_at" => "2023-06-14T14:52:09-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "my-new-article-title", "tags" => "Has Been Tagged, This Post", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/1051293791"}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.title = "My new Article title"
     article.author = "John Smith"
@@ -227,7 +231,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"id" => 1051293790, "title" => "My new Article title", "created_at" => "2023-06-14T14:51:49-04:00", "body_html" => "<h1>I like articles</h1>\n<p><strong>Yea</strong>, I like posting them through <span class=\"caps\">REST</span>.</p>", "blog_id" => 241253187, "author" => "John Smith", "user_id" => 548380009, "published_at" => "2011-03-24T11:45:47-04:00", "updated_at" => "2023-06-14T14:51:49-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "my-new-article-title", "tags" => "Has Been Tagged, This Post", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/1051293790", "image" => {"created_at" => "2023-06-14T14:51:49-04:00", "alt" => "Rails logo", "width" => 110, "height" => 140, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/rails_logo20230614-88826-bdt3aa.gif?v=1686768709"}}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.title = "My new Article title"
     article.author = "John Smith"
@@ -268,7 +272,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"id" => 1051293787, "title" => "My new Article title", "created_at" => "2023-06-14T14:51:31-04:00", "body_html" => "<h1>I like articles</h1>\n<p><strong>Yea</strong>, I like posting them through <span class=\"caps\">REST</span>.</p>", "blog_id" => 241253187, "author" => "John Smith", "user_id" => 548380009, "published_at" => nil, "updated_at" => "2023-06-14T14:51:31-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "my-new-article-title", "tags" => "Has Been Tagged, This Post", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/1051293787"}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.title = "My new Article title"
     article.author = "John Smith"
@@ -306,6 +310,7 @@ class Article202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 4}), headers: {})
 
     response = ShopifyAPI::Article.count(
+      session: @shopify_api_config.active_session,
       blog_id: 241253187,
     )
 
@@ -338,6 +343,7 @@ class Article202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"article" => {"id" => 134645308, "title" => "get on the train now", "created_at" => "2008-07-31T20:00:00-04:00", "body_html" => "<p>Do <em>you</em> have an <strong>IPod</strong> yet?</p>", "blog_id" => 241253187, "author" => "Dennis", "user_id" => 548380009, "published_at" => "2008-07-31T20:00:00-04:00", "updated_at" => "2008-07-31T20:00:00-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "get-on-the-train-now", "tags" => "Announcing", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308", "image" => {"created_at" => "2023-06-14T14:27:29-04:00", "alt" => "iMac", "width" => 123, "height" => 456, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/imac.jpg?v=1686767249"}}}), headers: {})
 
     response = ShopifyAPI::Article.find(
+      session: @shopify_api_config.active_session,
       blog_id: 241253187,
       id: 134645308,
     )
@@ -370,7 +376,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"blog_id" => 241253187, "title" => "get on the train now", "handle" => "get-on-the-train-now", "body_html" => "<p>Do <em>you</em> have an <strong>IPod</strong> yet?</p>", "author" => "Dennis", "id" => 134645308, "created_at" => "2008-07-31T20:00:00-04:00", "user_id" => 548380009, "published_at" => "2008-07-31T20:00:00-04:00", "updated_at" => "2023-06-14T14:51:44-04:00", "summary_html" => nil, "template_suffix" => nil, "tags" => "Announcing", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308", "image" => {"created_at" => "2023-06-14T14:27:29-04:00", "alt" => "iMac", "width" => 123, "height" => 456, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/imac.jpg?v=1686767249"}}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.id = 134645308
     article.metafields = [
@@ -411,7 +417,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"blog_id" => 241253187, "published_at" => nil, "title" => "get on the train now", "handle" => "get-on-the-train-now", "body_html" => "<p>Do <em>you</em> have an <strong>IPod</strong> yet?</p>", "author" => "Dennis", "id" => 134645308, "created_at" => "2008-07-31T20:00:00-04:00", "user_id" => 548380009, "updated_at" => "2023-06-14T14:52:14-04:00", "summary_html" => nil, "template_suffix" => nil, "tags" => "Announcing", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308", "image" => {"created_at" => "2023-06-14T14:27:29-04:00", "alt" => "iMac", "width" => 123, "height" => 456, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/imac.jpg?v=1686767249"}}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.id = 134645308
     article.published = false
@@ -445,7 +451,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"blog_id" => 241253187, "published_at" => "2023-06-14T14:51:23-04:00", "title" => "get on the train now", "handle" => "get-on-the-train-now", "body_html" => "<p>Do <em>you</em> have an <strong>IPod</strong> yet?</p>", "author" => "Dennis", "id" => 134645308, "created_at" => "2008-07-31T20:00:00-04:00", "user_id" => 548380009, "updated_at" => "2023-06-14T14:51:23-04:00", "summary_html" => nil, "template_suffix" => nil, "tags" => "Announcing", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308", "image" => {"created_at" => "2023-06-14T14:27:29-04:00", "alt" => "iMac", "width" => 123, "height" => 456, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/imac.jpg?v=1686767249"}}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.id = 134645308
     article.published = true
@@ -479,7 +485,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"blog_id" => 241253187, "updated_at" => "2023-06-14T14:50:50-04:00", "id" => 134645308, "title" => "get on the train now", "created_at" => "2008-07-31T20:00:00-04:00", "body_html" => "<p>Do <em>you</em> have an <strong>IPod</strong> yet?</p>", "author" => "Dennis", "user_id" => 548380009, "published_at" => "2008-07-31T20:00:00-04:00", "summary_html" => nil, "template_suffix" => nil, "handle" => "get-on-the-train-now", "tags" => "Announcing", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308"}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.id = 134645308
     article.image = ""
@@ -513,7 +519,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"blog_id" => 241253187, "author" => "Your name", "body_html" => "<p>Look, I can even update through a web service.</p>", "published_at" => "2011-03-24T11:45:47-04:00", "title" => "My new Title", "updated_at" => "2023-06-14T14:52:07-04:00", "id" => 134645308, "created_at" => "2008-07-31T20:00:00-04:00", "user_id" => nil, "summary_html" => nil, "template_suffix" => nil, "handle" => "get-on-the-train-now", "tags" => "Tags, Updated, Will Be", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308", "image" => {"created_at" => "2023-06-14T14:52:07-04:00", "alt" => nil, "width" => 110, "height" => 140, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/fd43f2c8883f6e9b680e3295fd990d2c.gif?v=1686768727"}}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.id = 134645308
     article.title = "My new Title"
@@ -554,7 +560,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"blog_id" => 241253187, "author" => "Your name", "body_html" => "<p>Look, I can even update through a web service.</p>", "published_at" => "2011-03-24T11:45:47-04:00", "title" => "My new Title", "handle" => "get-on-the-train-now", "user_id" => nil, "id" => 134645308, "created_at" => "2008-07-31T20:00:00-04:00", "updated_at" => "2023-06-14T14:51:53-04:00", "summary_html" => nil, "template_suffix" => nil, "tags" => "Tags, Updated, Will Be", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308", "image" => {"created_at" => "2023-06-14T14:27:29-04:00", "alt" => "iMac", "width" => 123, "height" => 456, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/imac.jpg?v=1686767249"}}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.id = 134645308
     article.title = "My new Title"
@@ -592,7 +598,7 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"article" => {"blog_id" => 241253187, "author" => "Your name", "body_html" => "<p>Look, I can even update through a web service.</p>", "published_at" => "2011-03-24T11:45:47-04:00", "title" => "My new Title", "handle" => "get-on-the-train-now", "id" => 134645308, "created_at" => "2008-07-31T20:00:00-04:00", "user_id" => nil, "updated_at" => "2023-06-14T14:51:41-04:00", "summary_html" => nil, "template_suffix" => nil, "tags" => "Tags, Updated, Will Be", "admin_graphql_api_id" => "gid://shopify/OnlineStoreArticle/134645308", "image" => {"created_at" => "2023-06-14T14:51:41-04:00", "alt" => "Rails logo", "width" => 110, "height" => 140, "src" => "https://cdn.shopify.com/s/files/1/0005/4838/0009/articles/rails_logo20230614-88826-zr5m05.gif?v=1686768701"}}}), headers: {})
 
-    response = article = ShopifyAPI::Article.new
+    response = article = ShopifyAPI::Article.new(session: @shopify_api_config.active_session)
     article.blog_id = 241253187
     article.id = 134645308
     article.title = "My new Title"
@@ -634,6 +640,7 @@ class Article202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::Article.delete(
+      session: @shopify_api_config.active_session,
       blog_id: 241253187,
       id: 134645308,
     )
@@ -666,7 +673,9 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"authors" => ["dennis", "John", "Rob", "Dennis"]}), headers: {})
 
-    response = ShopifyAPI::Article.authors
+    response = ShopifyAPI::Article.authors(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/articles/authors.json")
 
@@ -696,7 +705,9 @@ class Article202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"tags" => ["Announcing", "Mystery"]}), headers: {})
 
-    response = ShopifyAPI::Article.tags
+    response = ShopifyAPI::Article.tags(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/articles/tags.json")
 
@@ -727,6 +738,7 @@ class Article202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"tags" => ["Announcing"]}), headers: {})
 
     response = ShopifyAPI::Article.tags(
+      session: @shopify_api_config.active_session,
       limit: "1",
       popular: "1",
     )
@@ -760,6 +772,7 @@ class Article202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"tags" => ["Announcing", "Mystery"]}), headers: {})
 
     response = ShopifyAPI::Article.tags(
+      session: @shopify_api_config.active_session,
       blog_id: 241253187,
     )
 
@@ -792,6 +805,7 @@ class Article202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"tags" => ["Announcing"]}), headers: {})
 
     response = ShopifyAPI::Article.tags(
+      session: @shopify_api_config.active_session,
       blog_id: 241253187,
       limit: "1",
       popular: "1",

@@ -19,14 +19,16 @@ class ApplePayCertificate202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,7 @@ class ApplePayCertificate202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"apple_pay_certificate" => {"id" => 1068938277, "status" => "issuing", "merchant_id" => nil}}), headers: {})
 
-    response = apple_pay_certificate = ShopifyAPI::ApplePayCertificate.new
+    response = apple_pay_certificate = ShopifyAPI::ApplePayCertificate.new(session: @shopify_api_config.active_session)
 
     apple_pay_certificate.save
 
@@ -73,6 +75,7 @@ class ApplePayCertificate202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"apple_pay_certificate" => {"id" => 1068938278, "status" => "csr", "merchant_id" => nil}}), headers: {})
 
     response = ShopifyAPI::ApplePayCertificate.find(
+      session: @shopify_api_config.active_session,
       id: 1068938278,
     )
 
@@ -104,7 +107,7 @@ class ApplePayCertificate202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"apple_pay_certificate" => {"id" => 1068938276, "status" => "completed", "merchant_id" => "merchant.something"}}), headers: {})
 
-    response = apple_pay_certificate = ShopifyAPI::ApplePayCertificate.new
+    response = apple_pay_certificate = ShopifyAPI::ApplePayCertificate.new(session: @shopify_api_config.active_session)
     apple_pay_certificate.id = 1068938276
     apple_pay_certificate.status = "completed"
     apple_pay_certificate.merchant_id = "merchant.something"
@@ -140,6 +143,7 @@ class ApplePayCertificate202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::ApplePayCertificate.delete(
+      session: @shopify_api_config.active_session,
       id: 1068938275,
     )
 
@@ -172,6 +176,7 @@ class ApplePayCertificate202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"csr" => {"key" => "YXBwbGUtcGF5LWNzcg==\n"}}), headers: {})
 
     response = ShopifyAPI::ApplePayCertificate.csr(
+      session: @shopify_api_config.active_session,
       id: 1068938274,
     )
 

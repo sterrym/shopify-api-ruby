@@ -59,16 +59,16 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           assignment_status: T.untyped,
           location_ids: T.nilable(T.any(T::Array[T.untyped], Integer, String)),
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[AssignedFulfillmentOrder])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         assignment_status: nil,
         location_ids: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(

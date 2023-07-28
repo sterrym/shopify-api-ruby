@@ -19,14 +19,16 @@ class CarrierService202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,7 @@ class CarrierService202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"carrier_service" => {"id" => 1036894959, "name" => "Shipping Rate Provider", "active" => true, "service_discovery" => true, "carrier_service_type" => "api", "admin_graphql_api_id" => "gid://shopify/DeliveryCarrierService/1036894959", "format" => "json", "callback_url" => "http://shipping.example.com/"}}), headers: {})
 
-    response = carrier_service = ShopifyAPI::CarrierService.new
+    response = carrier_service = ShopifyAPI::CarrierService.new(session: @shopify_api_config.active_session)
     carrier_service.name = "Shipping Rate Provider"
     carrier_service.callback_url = "http://shipping.example.com"
     carrier_service.service_discovery = true
@@ -74,7 +76,9 @@ class CarrierService202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"carrier_services" => [{"id" => 1036894956, "name" => "Purolator", "active" => true, "service_discovery" => true, "carrier_service_type" => "api", "admin_graphql_api_id" => "gid://shopify/DeliveryCarrierService/1036894956", "format" => "json", "callback_url" => "http://example.com/"}, {"id" => 260046840, "name" => "ups_shipping", "active" => true, "service_discovery" => true, "carrier_service_type" => "legacy", "admin_graphql_api_id" => "gid://shopify/DeliveryCarrierService/260046840"}]}), headers: {})
 
-    response = ShopifyAPI::CarrierService.all
+    response = ShopifyAPI::CarrierService.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/carrier_services.json")
 
@@ -104,7 +108,7 @@ class CarrierService202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"carrier_service" => {"active" => false, "id" => 1036894957, "name" => "Some new name", "service_discovery" => true, "carrier_service_type" => "api", "admin_graphql_api_id" => "gid://shopify/DeliveryCarrierService/1036894957", "format" => "json", "callback_url" => "http://example.com/"}}), headers: {})
 
-    response = carrier_service = ShopifyAPI::CarrierService.new
+    response = carrier_service = ShopifyAPI::CarrierService.new(session: @shopify_api_config.active_session)
     carrier_service.id = 1036894957
     carrier_service.name = "Some new name"
     carrier_service.active = false
@@ -139,6 +143,7 @@ class CarrierService202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"carrier_service" => {"id" => 1036894960, "name" => "Purolator", "active" => true, "service_discovery" => true, "carrier_service_type" => "api", "admin_graphql_api_id" => "gid://shopify/DeliveryCarrierService/1036894960", "format" => "json", "callback_url" => "http://example.com/"}}), headers: {})
 
     response = ShopifyAPI::CarrierService.find(
+      session: @shopify_api_config.active_session,
       id: 1036894960,
     )
 
@@ -171,6 +176,7 @@ class CarrierService202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::CarrierService.delete(
+      session: @shopify_api_config.active_session,
       id: 1036894955,
     )
 

@@ -106,20 +106,20 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           status: T.untyped,
           limit: T.untyped,
           since_id: T.untyped,
           fields: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[GiftCard])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         status: nil,
         limit: nil,
         since_id: nil,
         fields: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(
@@ -133,14 +133,14 @@ module ShopifyAPI
 
       sig do
         params(
-          status: T.untyped,
           session: Auth::Session,
+          status: T.untyped,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def count(
-        status: nil,
         session: ShopifyAPI::Context.active_session,
+        status: nil,
         **kwargs
       )
         request(
@@ -156,6 +156,7 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           order: T.untyped,
           query: T.untyped,
           limit: T.untyped,
@@ -164,11 +165,11 @@ module ShopifyAPI
           created_at_max: T.untyped,
           updated_at_min: T.untyped,
           updated_at_max: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def search(
+        session: ShopifyAPI::Context.active_session,
         order: nil,
         query: nil,
         limit: nil,
@@ -177,7 +178,6 @@ module ShopifyAPI
         created_at_max: nil,
         updated_at_min: nil,
         updated_at_max: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         request(

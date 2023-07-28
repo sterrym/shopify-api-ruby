@@ -19,14 +19,16 @@ class StorefrontAccessToken202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,7 @@ class StorefrontAccessToken202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"storefront_access_token" => {"access_token" => "d8f6bb8fdd33308a0ef5cba4a72f89d2", "access_scope" => "unauthenticated_read_product_listings", "created_at" => "2023-06-14T14:27:00-04:00", "id" => 1003304090, "admin_graphql_api_id" => "gid://shopify/StorefrontAccessToken/1003304090", "title" => "Test"}}), headers: {})
 
-    response = storefront_access_token = ShopifyAPI::StorefrontAccessToken.new
+    response = storefront_access_token = ShopifyAPI::StorefrontAccessToken.new(session: @shopify_api_config.active_session)
     storefront_access_token.title = "Test"
     storefront_access_token.save
 
@@ -72,7 +74,9 @@ class StorefrontAccessToken202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"storefront_access_tokens" => [{"access_token" => "378d95641257a4ab3feff967ee234f4d", "access_scope" => "unauthenticated_read_product_listings", "created_at" => "2023-06-14T14:13:28-04:00", "id" => 755357713, "admin_graphql_api_id" => "gid://shopify/StorefrontAccessToken/755357713", "title" => "API Client Extension"}]}), headers: {})
 
-    response = ShopifyAPI::StorefrontAccessToken.all
+    response = ShopifyAPI::StorefrontAccessToken.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/storefront_access_tokens.json")
 
@@ -103,6 +107,7 @@ class StorefrontAccessToken202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({}), headers: {})
 
     response = ShopifyAPI::StorefrontAccessToken.delete(
+      session: @shopify_api_config.active_session,
       id: 755357713,
     )
 

@@ -119,22 +119,22 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           product_ids: T.untyped,
           limit: T.untyped,
           collection_id: T.untyped,
           updated_at_min: T.untyped,
           handle: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[ProductListing])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         product_ids: nil,
         limit: nil,
         collection_id: nil,
         updated_at_min: nil,
         handle: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(
@@ -169,14 +169,14 @@ module ShopifyAPI
 
       sig do
         params(
-          limit: T.untyped,
           session: Auth::Session,
+          limit: T.untyped,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def product_ids(
-        limit: nil,
         session: ShopifyAPI::Context.active_session,
+        limit: nil,
         **kwargs
       )
         request(

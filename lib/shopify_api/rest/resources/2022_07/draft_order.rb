@@ -125,14 +125,14 @@ module ShopifyAPI
       sig do
         params(
           id: T.any(Integer, String),
-          fields: T.untyped,
-          session: Auth::Session
+          session: Auth::Session,
+          fields: T.untyped
         ).returns(T.nilable(DraftOrder))
       end
       def find(
         id:,
-        fields: nil,
-        session: ShopifyAPI::Context.active_session
+        session: ShopifyAPI::Context.active_session,
+        fields: nil
       )
         result = base_find(
           session: session,
@@ -163,6 +163,7 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           fields: T.untyped,
           limit: T.untyped,
           since_id: T.untyped,
@@ -170,11 +171,11 @@ module ShopifyAPI
           updated_at_max: T.untyped,
           ids: T.untyped,
           status: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[DraftOrder])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         fields: nil,
         limit: nil,
         since_id: nil,
@@ -182,7 +183,6 @@ module ShopifyAPI
         updated_at_max: nil,
         ids: nil,
         status: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(
@@ -196,20 +196,20 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           since_id: T.untyped,
           status: T.untyped,
           updated_at_max: T.untyped,
           updated_at_min: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def count(
+        session: ShopifyAPI::Context.active_session,
         since_id: nil,
         status: nil,
         updated_at_max: nil,
         updated_at_min: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         request(

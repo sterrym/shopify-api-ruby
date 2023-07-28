@@ -98,15 +98,15 @@ module ShopifyAPI
         params(
           id: T.any(Integer, String),
           order_id: T.nilable(T.any(Integer, String)),
-          fields: T.untyped,
-          session: Auth::Session
+          session: Auth::Session,
+          fields: T.untyped
         ).returns(T.nilable(Fulfillment))
       end
       def find(
         id:,
         order_id: nil,
-        fields: nil,
-        session: ShopifyAPI::Context.active_session
+        session: ShopifyAPI::Context.active_session,
+        fields: nil
       )
         result = base_find(
           session: session,
@@ -120,6 +120,7 @@ module ShopifyAPI
         params(
           fulfillment_order_id: T.nilable(T.any(Integer, String)),
           order_id: T.nilable(T.any(Integer, String)),
+          session: Auth::Session,
           created_at_max: T.untyped,
           created_at_min: T.untyped,
           fields: T.untyped,
@@ -127,13 +128,13 @@ module ShopifyAPI
           since_id: T.untyped,
           updated_at_max: T.untyped,
           updated_at_min: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[Fulfillment])
       end
       def all(
         fulfillment_order_id: nil,
         order_id: nil,
+        session: ShopifyAPI::Context.active_session,
         created_at_max: nil,
         created_at_min: nil,
         fields: nil,
@@ -141,7 +142,6 @@ module ShopifyAPI
         since_id: nil,
         updated_at_max: nil,
         updated_at_min: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(
@@ -156,21 +156,21 @@ module ShopifyAPI
       sig do
         params(
           order_id: T.nilable(T.any(Integer, String)),
+          session: Auth::Session,
           created_at_min: T.untyped,
           created_at_max: T.untyped,
           updated_at_min: T.untyped,
           updated_at_max: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def count(
         order_id: nil,
+        session: ShopifyAPI::Context.active_session,
         created_at_min: nil,
         created_at_max: nil,
         updated_at_min: nil,
         updated_at_max: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         request(

@@ -122,18 +122,18 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           times_used: T.untyped,
           times_used_min: T.untyped,
           times_used_max: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def count(
+        session: ShopifyAPI::Context.active_session,
         times_used: nil,
         times_used_min: nil,
         times_used_max: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         request(
@@ -174,14 +174,14 @@ module ShopifyAPI
 
       sig do
         params(
-          code: T.untyped,
           session: Auth::Session,
+          code: T.untyped,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def lookup(
-        code: nil,
         session: ShopifyAPI::Context.active_session,
+        code: nil,
         **kwargs
       )
         request(

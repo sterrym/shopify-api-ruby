@@ -55,15 +55,15 @@ module ShopifyAPI
         params(
           id: T.any(Integer, String),
           recurring_application_charge_id: T.nilable(T.any(Integer, String)),
-          fields: T.untyped,
-          session: Auth::Session
+          session: Auth::Session,
+          fields: T.untyped
         ).returns(T.nilable(UsageCharge))
       end
       def find(
         id:,
         recurring_application_charge_id: nil,
-        fields: nil,
-        session: ShopifyAPI::Context.active_session
+        session: ShopifyAPI::Context.active_session,
+        fields: nil
       )
         result = base_find(
           session: session,
@@ -76,15 +76,15 @@ module ShopifyAPI
       sig do
         params(
           recurring_application_charge_id: T.nilable(T.any(Integer, String)),
-          fields: T.untyped,
           session: Auth::Session,
+          fields: T.untyped,
           kwargs: T.untyped
         ).returns(T::Array[UsageCharge])
       end
       def all(
         recurring_application_charge_id: nil,
-        fields: nil,
         session: ShopifyAPI::Context.active_session,
+        fields: nil,
         **kwargs
       )
         response = base_find(

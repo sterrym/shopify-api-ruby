@@ -44,15 +44,15 @@ module ShopifyAPI
     class << self
       sig do
         params(
+          session: Auth::Session,
           inventory_item_id: T.untyped,
-          location_id: T.untyped,
-          session: Auth::Session
+          location_id: T.untyped
         ).returns(T.untyped)
       end
       def delete(
+        session: ShopifyAPI::Context.active_session,
         inventory_item_id: nil,
-        location_id: nil,
-        session: ShopifyAPI::Context.active_session
+        location_id: nil
       )
         request(
           http_method: :delete,
@@ -65,20 +65,20 @@ module ShopifyAPI
 
       sig do
         params(
+          session: Auth::Session,
           inventory_item_ids: T.untyped,
           location_ids: T.untyped,
           limit: T.untyped,
           updated_at_min: T.untyped,
-          session: Auth::Session,
           kwargs: T.untyped
         ).returns(T::Array[InventoryLevel])
       end
       def all(
+        session: ShopifyAPI::Context.active_session,
         inventory_item_ids: nil,
         location_ids: nil,
         limit: nil,
         updated_at_min: nil,
-        session: ShopifyAPI::Context.active_session,
         **kwargs
       )
         response = base_find(

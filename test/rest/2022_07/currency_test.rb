@@ -19,14 +19,16 @@ class Currency202207Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-07")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-07")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,9 @@ class Currency202207Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"currencies" => [{"currency" => "CAD", "rate_updated_at" => "2018-01-23T19:01:01-05:00", "enabled" => true}, {"currency" => "EUR", "rate_updated_at" => "2018-01-23T19:01:01-05:00", "enabled" => true}, {"currency" => "JPY", "rate_updated_at" => "2018-01-23T19:01:01-05:00", "enabled" => true}]}), headers: {})
 
-    response = ShopifyAPI::Currency.all
+    response = ShopifyAPI::Currency.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-07/currencies.json")
 

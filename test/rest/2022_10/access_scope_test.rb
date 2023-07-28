@@ -19,14 +19,16 @@ class AccessScope202210Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-10")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-10")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,9 @@ class AccessScope202210Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"access_scopes" => [{"handle" => "read_products"}, {"handle" => "write_orders"}, {"handle" => "read_orders"}]}), headers: {})
 
-    response = ShopifyAPI::AccessScope.all
+    response = ShopifyAPI::AccessScope.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/oauth/access_scopes.json")
 

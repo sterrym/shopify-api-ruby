@@ -19,14 +19,16 @@ class Theme202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,9 @@ class Theme202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"themes" => [{"id" => 828155753, "name" => "Comfort", "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "role" => "main", "theme_store_id" => nil, "previewable" => true, "processing" => false, "admin_graphql_api_id" => "gid://shopify/Theme/828155753"}, {"id" => 976877075, "name" => "Preview of Parallax", "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "role" => "demo", "theme_store_id" => 688, "previewable" => true, "processing" => false, "admin_graphql_api_id" => "gid://shopify/Theme/976877075"}, {"id" => 752253240, "name" => "Sandbox", "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "role" => "unpublished", "theme_store_id" => nil, "previewable" => true, "processing" => false, "admin_graphql_api_id" => "gid://shopify/Theme/752253240"}]}), headers: {})
 
-    response = ShopifyAPI::Theme.all
+    response = ShopifyAPI::Theme.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/themes.json")
 
@@ -70,7 +74,7 @@ class Theme202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"theme" => {"id" => 1049083723, "name" => "Lemongrass", "created_at" => "2023-06-14T14:17:15-04:00", "updated_at" => "2023-06-14T14:17:15-04:00", "role" => "unpublished", "theme_store_id" => nil, "previewable" => false, "processing" => true, "admin_graphql_api_id" => "gid://shopify/Theme/1049083723"}}), headers: {})
 
-    response = theme = ShopifyAPI::Theme.new
+    response = theme = ShopifyAPI::Theme.new(session: @shopify_api_config.active_session)
     theme.name = "Lemongrass"
     theme.src = "http://themes.shopify.com/theme.zip"
     theme.role = "main"
@@ -105,6 +109,7 @@ class Theme202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"theme" => {"id" => 828155753, "name" => "Comfort", "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "role" => "main", "theme_store_id" => nil, "previewable" => true, "processing" => false, "admin_graphql_api_id" => "gid://shopify/Theme/828155753"}}), headers: {})
 
     response = ShopifyAPI::Theme.find(
+      session: @shopify_api_config.active_session,
       id: 828155753,
     )
 
@@ -136,7 +141,7 @@ class Theme202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"theme" => {"role" => "main", "id" => 752253240, "name" => "Sandbox", "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:17:21-04:00", "theme_store_id" => nil, "previewable" => true, "processing" => false, "admin_graphql_api_id" => "gid://shopify/Theme/752253240"}}), headers: {})
 
-    response = theme = ShopifyAPI::Theme.new
+    response = theme = ShopifyAPI::Theme.new(session: @shopify_api_config.active_session)
     theme.id = 752253240
     theme.role = "main"
     theme.save
@@ -169,7 +174,7 @@ class Theme202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"theme" => {"name" => "Experimental", "role" => "unpublished", "id" => 752253240, "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:17:23-04:00", "theme_store_id" => nil, "previewable" => true, "processing" => false, "admin_graphql_api_id" => "gid://shopify/Theme/752253240"}}), headers: {})
 
-    response = theme = ShopifyAPI::Theme.new
+    response = theme = ShopifyAPI::Theme.new(session: @shopify_api_config.active_session)
     theme.id = 752253240
     theme.name = "Experimental"
     theme.save
@@ -203,6 +208,7 @@ class Theme202204Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"id" => 752253240, "name" => "Sandbox", "created_at" => "2023-06-14T14:13:28-04:00", "updated_at" => "2023-06-14T14:13:28-04:00", "role" => "unpublished", "theme_store_id" => nil, "previewable" => true, "processing" => false, "admin_graphql_api_id" => "gid://shopify/Theme/752253240"}), headers: {})
 
     response = ShopifyAPI::Theme.delete(
+      session: @shopify_api_config.active_session,
       id: 752253240,
     )
 

@@ -19,14 +19,16 @@ class ResourceFeedback202204Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-04")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-04")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,7 @@ class ResourceFeedback202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"resource_feedback" => {"created_at" => "2023-06-14T14:14:24-04:00", "updated_at" => "2023-06-14T14:14:24-04:00", "resource_id" => 548380009, "resource_type" => "Shop", "resource_updated_at" => nil, "messages" => ["is not connected. Connect your account to use this sales channel."], "feedback_generated_at" => "2023-06-14T14:14:23-04:00", "state" => "requires_action"}}), headers: {})
 
-    response = resource_feedback = ShopifyAPI::ResourceFeedback.new
+    response = resource_feedback = ShopifyAPI::ResourceFeedback.new(session: @shopify_api_config.active_session)
     resource_feedback.state = "requires_action"
     resource_feedback.messages = [
       "is not connected. Connect your account to use this sales channel."
@@ -76,7 +78,7 @@ class ResourceFeedback202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"resource_feedback" => {"created_at" => "2023-06-14T14:14:20-04:00", "updated_at" => "2023-06-14T14:14:20-04:00", "resource_id" => 548380009, "resource_type" => "Shop", "resource_updated_at" => nil, "messages" => [], "feedback_generated_at" => "2023-06-14T14:14:19-04:00", "state" => "success"}}), headers: {})
 
-    response = resource_feedback = ShopifyAPI::ResourceFeedback.new
+    response = resource_feedback = ShopifyAPI::ResourceFeedback.new(session: @shopify_api_config.active_session)
     resource_feedback.state = "success"
     resource_feedback.feedback_generated_at = "2023-06-14T18:14:19.642662Z"
     resource_feedback.save
@@ -109,7 +111,9 @@ class ResourceFeedback202204Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"resource_feedback" => [{"created_at" => "2023-06-14T14:14:22-04:00", "updated_at" => "2023-06-14T14:14:22-04:00", "resource_id" => 548380009, "resource_type" => "Shop", "resource_updated_at" => nil, "messages" => ["is not connected. Connect your account to use this sales channel."], "feedback_generated_at" => "2023-06-14T13:14:22-04:00", "state" => "requires_action"}]}), headers: {})
 
-    response = ShopifyAPI::ResourceFeedback.all
+    response = ShopifyAPI::ResourceFeedback.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-04/resource_feedback.json")
 

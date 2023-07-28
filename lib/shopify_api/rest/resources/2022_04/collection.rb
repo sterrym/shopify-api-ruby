@@ -62,14 +62,14 @@ module ShopifyAPI
       sig do
         params(
           id: T.any(Integer, String),
-          fields: T.untyped,
-          session: Auth::Session
+          session: Auth::Session,
+          fields: T.untyped
         ).returns(T.nilable(Collection))
       end
       def find(
         id:,
-        fields: nil,
-        session: ShopifyAPI::Context.active_session
+        session: ShopifyAPI::Context.active_session,
+        fields: nil
       )
         result = base_find(
           session: session,
@@ -82,15 +82,15 @@ module ShopifyAPI
       sig do
         params(
           id: T.any(Integer, String),
-          limit: T.untyped,
           session: Auth::Session,
+          limit: T.untyped,
           kwargs: T.untyped
         ).returns(T.untyped)
       end
       def products(
         id:,
-        limit: nil,
         session: ShopifyAPI::Context.active_session,
+        limit: nil,
         **kwargs
       )
         request(

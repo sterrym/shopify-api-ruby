@@ -19,14 +19,16 @@ class Event202210Test < Test::Unit::TestCase
     super
 
     test_session = ShopifyAPI::Auth::Session.new(id: "id", shop: "test-shop.myshopify.io", access_token: "this_is_a_test_token")
-    ShopifyAPI::Context.activate_session(test_session)
-    modify_context(api_version: "2022-10")
+
+    @shopify_api_config ||= create_config
+    @shopify_api_config.activate_session(test_session)
+    @shopify_api_config.modify(api_version: "2022-10")
   end
 
   def teardown
     super
 
-    ShopifyAPI::Context.deactivate_session
+    @shopify_api_config.deactivate_session
   end
 
   sig do
@@ -40,7 +42,9 @@ class Event202210Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"events" => [{"id" => 164748010, "subject_id" => 450789469, "created_at" => "2008-01-10T06:00:00-05:00", "subject_type" => "Order", "verb" => "confirmed", "arguments" => ["#1001", "Bob Norman"], "body" => nil, "message" => "Received new order <a href=\"https://jsmith.myshopify.com/admin/orders/450789469\">#1001</a> by Bob Norman.", "author" => "Shopify", "description" => "Received new order #1001 by Bob Norman.", "path" => "/admin/orders/450789469"}, {"id" => 365755215, "subject_id" => 632910392, "created_at" => "2008-01-10T07:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Nano - 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/632910392\">IPod Nano - 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Nano - 8GB.", "path" => "/admin/products/632910392"}, {"id" => 677313116, "subject_id" => 921728736, "created_at" => "2008-01-10T08:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Touch 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/921728736\">IPod Touch 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Touch 8GB.", "path" => "/admin/products/921728736"}]}), headers: {})
 
-    response = ShopifyAPI::Event.all
+    response = ShopifyAPI::Event.all(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-10/events.json")
 
@@ -71,6 +75,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"events" => [{"id" => 103105390, "subject_id" => 450789469, "created_at" => "2008-01-10T05:00:00-05:00", "subject_type" => "Order", "verb" => "authorization_success", "arguments" => ["389404469", "210.94", "USD"], "body" => nil, "message" => "A transaction was authorized.", "author" => "Shopify", "description" => "A transaction was authorized.", "path" => "/admin/orders/450789469"}, {"id" => 164748010, "subject_id" => 450789469, "created_at" => "2008-01-10T06:00:00-05:00", "subject_type" => "Order", "verb" => "confirmed", "arguments" => ["#1001", "Bob Norman"], "body" => nil, "message" => "Received new order <a href=\"https://jsmith.myshopify.com/admin/orders/450789469\">#1001</a> by Bob Norman.", "author" => "Shopify", "description" => "Received new order #1001 by Bob Norman.", "path" => "/admin/orders/450789469"}, {"id" => 852065041, "subject_id" => 450789469, "created_at" => "2008-01-10T09:00:00-05:00", "subject_type" => "Order", "verb" => "placed", "arguments" => [], "body" => nil, "message" => "This order was created for Bob Norman from draft order <a href=\"https://jsmith.myshopify.com/admin/draft_orders/72885271\">#D4</a>.", "author" => "Shopify", "description" => "This order was created for Bob Norman from draft order #D4.", "path" => "/admin/orders/450789469"}]}), headers: {})
 
     response = ShopifyAPI::Event.all(
+      session: @shopify_api_config.active_session,
       order_id: 450789469,
     )
 
@@ -103,6 +108,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"events" => [{"id" => 164748010, "subject_id" => 450789469, "created_at" => "2008-01-10T06:00:00-05:00", "subject_type" => "Order", "verb" => "confirmed", "arguments" => ["#1001", "Bob Norman"], "body" => nil, "message" => "Received new order <a href=\"https://jsmith.myshopify.com/admin/orders/450789469\">#1001</a> by Bob Norman.", "author" => "Shopify", "description" => "Received new order #1001 by Bob Norman.", "path" => "/admin/orders/450789469"}, {"id" => 365755215, "subject_id" => 632910392, "created_at" => "2008-01-10T07:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Nano - 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/632910392\">IPod Nano - 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Nano - 8GB.", "path" => "/admin/products/632910392"}, {"id" => 677313116, "subject_id" => 921728736, "created_at" => "2008-01-10T08:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Touch 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/921728736\">IPod Touch 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Touch 8GB.", "path" => "/admin/products/921728736"}]}), headers: {})
 
     response = ShopifyAPI::Event.all(
+      session: @shopify_api_config.active_session,
       filter: "Product,Order",
     )
 
@@ -135,6 +141,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"events" => []}), headers: {})
 
     response = ShopifyAPI::Event.all(
+      session: @shopify_api_config.active_session,
       filter: "Product",
       verb: "destroy",
     )
@@ -168,6 +175,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"events" => [{"id" => 677313116, "subject_id" => 921728736, "created_at" => "2008-01-10T08:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Touch 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/921728736\">IPod Touch 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Touch 8GB.", "path" => "/admin/products/921728736"}]}), headers: {})
 
     response = ShopifyAPI::Event.all(
+      session: @shopify_api_config.active_session,
       created_at_min: "2008-01-10 12:30:00+00:00",
     )
 
@@ -200,6 +208,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"events" => [{"id" => 365755215, "subject_id" => 632910392, "created_at" => "2008-01-10T07:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Nano - 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/632910392\">IPod Nano - 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Nano - 8GB.", "path" => "/admin/products/632910392"}, {"id" => 677313116, "subject_id" => 921728736, "created_at" => "2008-01-10T08:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Touch 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/921728736\">IPod Touch 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Touch 8GB.", "path" => "/admin/products/921728736"}]}), headers: {})
 
     response = ShopifyAPI::Event.all(
+      session: @shopify_api_config.active_session,
       since_id: "164748010",
     )
 
@@ -232,6 +241,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"events" => [{"id" => 677313116, "subject_id" => 921728736, "created_at" => "2008-01-10T08:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Touch 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/921728736\">IPod Touch 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Touch 8GB.", "path" => "/admin/products/921728736"}]}), headers: {})
 
     response = ShopifyAPI::Event.all(
+      session: @shopify_api_config.active_session,
       product_id: 921728736,
     )
 
@@ -264,6 +274,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"events" => [{"id" => 852065041, "subject_id" => 450789469, "created_at" => "2008-01-10T09:00:00-05:00", "subject_type" => "Order", "verb" => "placed", "arguments" => [], "body" => nil, "message" => "This order was created for Bob Norman from draft order <a href=\"https://jsmith.myshopify.com/admin/draft_orders/72885271\">#D4</a>.", "author" => "Shopify", "description" => "This order was created for Bob Norman from draft order #D4.", "path" => "/admin/orders/450789469"}]}), headers: {})
 
     response = ShopifyAPI::Event.all(
+      session: @shopify_api_config.active_session,
       order_id: 450789469,
       limit: "1",
       since_id: "164748010",
@@ -298,6 +309,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"event" => {"id" => 677313116, "subject_id" => 921728736, "created_at" => "2008-01-10T08:00:00-05:00", "subject_type" => "Product", "verb" => "create", "arguments" => ["IPod Touch 8GB"], "body" => nil, "message" => "Product was created: <a href=\"https://jsmith.myshopify.com/admin/products/921728736\">IPod Touch 8GB</a>.", "author" => "Shopify", "description" => "Product was created: IPod Touch 8GB.", "path" => "/admin/products/921728736"}}), headers: {})
 
     response = ShopifyAPI::Event.find(
+      session: @shopify_api_config.active_session,
       id: 677313116,
     )
 
@@ -329,7 +341,9 @@ class Event202210Test < Test::Unit::TestCase
       )
       .to_return(status: 200, body: JSON.generate({"count" => 3}), headers: {})
 
-    response = ShopifyAPI::Event.count
+    response = ShopifyAPI::Event.count(
+      session: @shopify_api_config.active_session,
+    )
 
     assert_requested(:get, "https://test-shop.myshopify.io/admin/api/2022-10/events/count.json")
 
@@ -360,6 +374,7 @@ class Event202210Test < Test::Unit::TestCase
       .to_return(status: 200, body: JSON.generate({"count" => 1}), headers: {})
 
     response = ShopifyAPI::Event.count(
+      session: @shopify_api_config.active_session,
       created_at_min: "2008-01-10T13:00:00+00:00",
     )
 
