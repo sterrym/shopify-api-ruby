@@ -65,8 +65,10 @@ module ShopifyAPI
             # TODO: Adjust error message to reflect the new Config instance
             raise Errors::ContextNotSetupError, "ShopifyAPI::Context not setup, please call ShopifyAPI::Context.setup"
           end
-          raise Errors::InvalidOauthError, "Invalid OAuth callback." unless Utils::HmacValidator.validate(auth_query,
-            config)
+          raise Errors::InvalidOauthError, "Invalid OAuth callback." unless Utils::HmacValidator.validate(
+            auth_query,
+            config,
+          )
           raise Errors::UnsupportedOauthError, "Cannot perform OAuth for private apps." if config.private?
 
           state = cookies[SessionCookie::SESSION_COOKIE_NAME]

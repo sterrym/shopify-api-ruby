@@ -166,8 +166,10 @@ module ShopifyAPI
           params(request: Request, config: T.any(ShopifyAPI::Config, T.class_of(ShopifyAPI::Context))).void
         end
         def process(request, config = ShopifyAPI::Context)
-          raise Errors::InvalidWebhookError, "Invalid webhook HMAC." unless Utils::HmacValidator.validate(request,
-            config)
+          raise Errors::InvalidWebhookError, "Invalid webhook HMAC." unless Utils::HmacValidator.validate(
+            request,
+            config,
+          )
 
           handler = @registry[request.topic]&.handler
 

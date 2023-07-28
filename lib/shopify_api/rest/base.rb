@@ -24,6 +24,9 @@ module ShopifyAPI
       sig { returns(T.any(Rest::BaseErrors, T.nilable(T::Hash[T.untyped, T.untyped]))) }
       attr_reader :errors
 
+      sig { returns(T.any(ShopifyAPI::Config, T.class_of(ShopifyAPI::Context))) }
+      attr_accessor :config
+
       sig do
         params(
           session: T.nilable(Auth::Session),
@@ -39,8 +42,9 @@ module ShopifyAPI
 
         session ||= config.active_session
 
-        client = ShopifyAPI::Clients::Rest::Admin.new(session: session)
+        client = ShopifyAPI::Clients::Rest::Admin.new(session: session, config: config)
 
+        @config = T.let(config, T.any(ShopifyAPI::Config, T.class_of(ShopifyAPI::Context)))
         @session = T.let(T.must(session), Auth::Session)
         @client = T.let(client, Clients::Rest::Admin)
         @errors = T.let(Rest::BaseErrors.new, Rest::BaseErrors)
@@ -188,7 +192,7 @@ module ShopifyAPI
           ).returns(Clients::HttpResponse)
         end
         def request(http_method:, operation:, session:, ids: {}, params: {}, body: nil, entity: nil)
-          client = ShopifyAPI::Clients::Rest::Admin.new(session: session)
+          client = ShopifyAPI::Clients::Rest::Admin.new(session: session, config: config)
 
           path = get_path(http_method: http_method, operation: operation.to_sym, ids: ids)
 

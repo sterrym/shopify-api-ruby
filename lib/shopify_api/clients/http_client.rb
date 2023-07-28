@@ -22,7 +22,7 @@ module ShopifyAPI
         session ||= config.active_session
         raise Errors::NoActiveSessionError, "No passed or active session" unless session
 
-        @config = config
+        @config = T.let(config, T.any(ShopifyAPI::Config, T.class_of(ShopifyAPI::Context)))
         @base_uri = T.let("https://#{session.shop}", String)
         @base_uri_and_path = T.let("#{@base_uri}#{base_path}", String)
 
