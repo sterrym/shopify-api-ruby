@@ -5,6 +5,11 @@ require "rake/testtask"
 require "bundler/gem_tasks"
 
 namespace :test do
+  Rake::TestTask.new(:focus) do |t|
+    _this, *files = ARGV
+    t.test_files = FileList[files]
+  end
+
   Rake::TestTask.new(:library) do |t|
     t.test_files = FileList["test/**/*_test.rb"].exclude("test/rest/**/*.rb")
   end
