@@ -5,6 +5,24 @@ module ShopifyAPI
   class Config
     extend T::Sig
 
+    sig { returns(String) }
+    attr_accessor :api_key, :api_secret_key, :api_version
+
+    sig { returns(T::Boolean) }
+    attr_accessor :is_embedded, :is_private
+
+    sig { returns(Auth::AuthScopes) }
+    attr_accessor :scope
+
+    sig { returns(::Logger) }
+    attr_accessor :logger
+
+    sig { returns(Symbol) }
+    attr_accessor :log_level
+
+    sig { returns(T.nilable(String)) }
+    attr_accessor :private_shop, :user_agent_prefix, :old_api_secret_key, :host
+
     sig do
       params(
         api_key: String,
@@ -63,10 +81,54 @@ module ShopifyAPI
       @active_session = T.let(Concurrent::ThreadLocalVar.new { nil }, T.nilable(Concurrent::ThreadLocalVar))
       @notified_missing_resources_folder = T.let({}, T::Hash[String, T::Boolean])
 
-      load_rest_resources(api_version: api_version)
+      load_rest_resources
     end
-    sig { params(api_version: String).void }
-    def load_rest_resources(api_version:)
+
+    sig do
+      params(
+        api_key: T.nilable(String),
+        api_secret_key: T.nilable(String),
+        api_version: T.nilable(String),
+        host: T.nilable(String),
+        scope: T.nilable(T.any(T::Array[String], String)),
+        is_private: T.nilable(T::Boolean),
+        is_embedded: T.nilable(T::Boolean),
+        logger: T.nilable(::Logger),
+        private_shop: T.nilable(String),
+        user_agent_prefix: T.nilable(String),
+        old_api_secret_key: T.nilable(String),
+      ).void
+    end
+    def modify(
+      api_key: nil,
+      api_secret_key: nil,
+      api_version: nil,
+      host: nil,
+      scope: nil,
+      is_private: nil,
+      is_embedded: nil,
+      logger: nil,
+      private_shop: "do-not-set",
+      user_agent_prefix: nil,
+      old_api_secret_key: nil
+    )
+      @api_key = api_key if api_key
+      @api_secret_key = api_secret_key if api_secret_key
+      @api_version = api_version if api_version
+      @host = host if host
+      @scope = Auth::AuthScopes.new(scope) if scope
+      @is_private = !is_private.nil? if is_private
+      @is_embedded = !is_embedded.nil? if is_embedded
+      @logger = logger if logger
+      @private_shop = private_shop if private_shop != "do-not-set"
+      @user_agent_prefix = user_agent_prefix if user_agent_prefix
+      @old_api_secret_key = old_api_secret_key if old_api_secret_key
+      @log_level = :off
+      load_rest_resources
+    end
+
+    sig { void }
+    def load_rest_resources
       # Unload any previous instances - mostly useful for tests where we need to reset the version
       @rest_resource_loader&.setup
       @rest_resource_loader&.unload
@@ -94,25 +156,10 @@ module ShopifyAPI
       T.must(@rest_resource_loader).reload
     end
 
-    sig { returns(String) }
-    attr_reader :api_key, :api_secret_key, :api_version
-
-    sig { returns(Auth::AuthScopes) }
-    attr_reader :scope
-
-    sig { returns(::Logger) }
-    attr_reader :logger
-
-    sig { returns(Symbol) }
-    attr_reader :log_level
-
     sig { returns(T::Boolean) }
     def private?
       @is_private
     end
-
-    sig { returns(T.nilable(String)) }
-    attr_reader :private_shop, :user_agent_prefix, :old_api_secret_key, :host
 
     sig { returns(T::Boolean) }
     def embedded?
